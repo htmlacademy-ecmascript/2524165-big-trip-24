@@ -1,4 +1,4 @@
-import { createElement } from '../render';
+import AbstractView from '../framework/view/abstract-view';
 import { formatDate, timeFromTo } from '../utilities/util';
 import { DateFormats } from '../constants';
 
@@ -61,24 +61,23 @@ function createListItemPointTemplate (trip) {
             </li>`;
 }
 
-export default class ListItemPointView {
-  constructor (trip) {
-    this.trip = trip;
+export default class TripPointView extends AbstractView {
+  #trip = null;
+  #handleEditButtonClick = null;
+
+  constructor (trip, onEditButtonClick) {
+    super();
+    this.#trip = trip;
+    this.#handleEditButtonClick = onEditButtonClick;
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editButtonClickHandler);
   }
 
-  getTemplate() {
-    return createListItemPointTemplate(this.trip);
+  get template() {
+    return createListItemPointTemplate(this.#trip);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
+  #editButtonClickHandler = () => {
+    this.#handleEditButtonClick();
+  };
 
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
-  }
 }

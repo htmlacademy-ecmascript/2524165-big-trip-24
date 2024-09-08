@@ -1,4 +1,4 @@
-import { createElement } from '../render';
+import AbstractView from '../framework/view/abstract-view';
 import { TYPES, DESTINATION_NAMES } from '../constants.js';
 import { formatDate } from '../utilities/util.js';
 import { DateFormats } from '../constants.js';
@@ -134,24 +134,31 @@ function createDestinationSection(description) {
           </section>`;
 }
 
-export default class FormEditPointView {
-  constructor (trip) {
-    this.trip = trip;
+export default class FormEditPointView extends AbstractView {
+  #trip = null;
+  #handleFormSubmit = null;
+  #handleCloseButtonClick = null;
+
+  constructor (trip, onFormSubmit, onCloseButtonClick) {
+    super();
+    this.#trip = trip;
+    this.#handleFormSubmit = onFormSubmit;
+    this.#handleCloseButtonClick = onCloseButtonClick;
+    this.element.querySelector('.event.event--edit').addEventListener('submit', this.#formSubmitHandler);
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#closeButtonClickHandler);
   }
 
-  getTemplate() {
-    return createFormEditPointTemplate(this.trip);
+  get template() {
+    return createFormEditPointTemplate(this.#trip);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
+  #formSubmitHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFormSubmit();
+  };
 
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
-  }
+  #closeButtonClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleCloseButtonClick();
+  };
 }
