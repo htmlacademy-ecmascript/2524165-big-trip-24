@@ -1,4 +1,4 @@
-import { createElement } from '../render';
+import AbstractView from '../framework/view/abstract-view';
 import { TYPES, DESTINATION_NAMES } from '../constants.js';
 import { formatDate } from '../utilities/util.js';
 import { DateFormats } from '../constants.js';
@@ -186,21 +186,10 @@ function createDestinationSection() {
           </section>`;
 }
 
-export default class FormAddPointView {
+export default class FormAddPointView extends AbstractView {
 
-  getTemplate() {
+  get template() {
     return createFormAddPointTemplate();
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
-  }
 }
