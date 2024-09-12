@@ -1,6 +1,6 @@
 import AbstractView from '../framework/view/abstract-view';
 import { TYPES, DESTINATION_NAMES } from '../constants.js';
-import { formatDate } from '../utilities/util.js';
+import { formatDate } from '../utilities/trip.js';
 import { DateFormats } from '../constants.js';
 
 const DEFAULT_TYPE = 'Taxi';

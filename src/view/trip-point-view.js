@@ -1,5 +1,5 @@
 import AbstractView from '../framework/view/abstract-view';
-import { formatDate, timeFromTo } from '../utilities/util';
+import { formatDate, getTimeFromTo } from '../utilities/trip';
 import { DateFormats } from '../constants';
 
 function createOffersList(offers) {
@@ -20,6 +20,9 @@ function createOffersList(offers) {
 }
 
 function createListItemPointTemplate (trip) {
+  if (trip === null) {
+    return '<p class="trip-events__msg">Click New Event to create your first point</p>';
+  }
   const { basePrice, dateFrom, dateTo, destination: { name: destinationName }, isFavorite, type, offers } = trip;
 
   const favoriteButtonActive = isFavorite ? 'event__favorite-btn--active' : '';
@@ -27,7 +30,7 @@ function createListItemPointTemplate (trip) {
   const formattedHoursDateFrom = formatDate(dateFrom, DateFormats.HOURS);
   const formattedHoursDateTo = formatDate(dateTo, DateFormats.HOURS);
   const formattedMonthDateFrom = formatDate(dateFrom, DateFormats.MONTHDAY);
-  const formattedDateFromTo = timeFromTo(dateFrom, dateTo);
+  const formattedDateFromTo = getTimeFromTo(dateFrom, dateTo);
 
   return `<li class="trip-events__item">
               <div class="event">

@@ -1,11 +1,14 @@
-import { getRandomTrip } from '../mock/mock.js';
-
-const TRIP_COUNT = 5;
+import { getTrips } from '../mock/trip.js';
+import { getFilters } from '../mock/filter.js';
 
 export default class TripModel {
-  #trips = Array.from({length: TRIP_COUNT}, getRandomTrip);
+  #trips = getTrips();
 
   get trips() {
     return this.#trips;
+  }
+
+  get filters() {
+    return getFilters(this.#trips);
   }
 }

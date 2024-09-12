@@ -3,18 +3,17 @@ import TripPointView from '../view/trip-point-view.js';
 import FilterListView from '../view/filter-list-view.js';
 import SortView from '../view/sort-view.js';
 import TripListView from '../view/trip-list-view.js';
+import TripListEmptyView from '../view/trip-list-empty-view.js';
 
 import { render, replace } from '../framework/render.js';
 
-const LIST_ITEM_POINT_VIEW_COUNT = 5;
-
 export default class Presenter {
   #tripListComponent = new TripListView();
-  #filterListComponent = new FilterListView();
   #filterContainer = null;
   #tripEventsContainer = null;
   #tripModel = null;
   #trips = [];
+  #filters = [];
 
   constructor(filterContainer, tripEventsContainer, tripModel) {
     this.#filterContainer = filterContainer;
@@ -24,14 +23,23 @@ export default class Presenter {
 
   init() {
     this.#trips = this.#tripModel.trips;
-    render(this.#filterListComponent, this.#filterContainer);
+    this.#filters = this.#tripModel.filters;
+    render(new FilterListView(this.#filters), this.#filterContainer);
+
+    if (this.#trips.length === 0) {
+      render(new TripListEmptyView(), this.#tripEventsContainer);
+      return;
+    }
+
     render(new SortView(), this.#tripEventsContainer);
     render(this.#tripListComponent, this.#tripEventsContainer);
 
-    for (let i = 0; i < LIST_ITEM_POINT_VIEW_COUNT; i++) {
+    const tripsCount = this.#trips.length;
+    for (let i = 0; i < tripsCount; i++) {
       this.#renderTrip(this.#trips[i]);
     }
   }
+
 
   #renderTrip(trip) {
     const tripComponent = new TripPointView(trip, onEditButtonClick);

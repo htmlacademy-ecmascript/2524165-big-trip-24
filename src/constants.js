@@ -24,4 +24,11 @@ const DateFormats = {
   MONTHDAY: 'D/MMM'
 };
 
-export { TYPES, DESTINATION_NAMES, DateFormats };
+const FilterTypes = {
+  EVERYTHING: 'everything',
+  FUTURE: 'future',
+  PRESENT: 'present',
+  PAST: 'past'
+};
+
+export { TYPES, DESTINATION_NAMES, DateFormats, FilterTypes };
