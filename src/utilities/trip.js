@@ -42,4 +42,8 @@ function checkTripIsPast (trip) {
   return trip.dateTo <= dateNow;
 }
 
-export { formatDate, getTimeFromTo, generateTime, checkTripIsFuture, checkTripIsPast, checkTripIsPresent };
+function updateTrip (trips, updatedTrip) {
+  return trips.map((trip) => trip.id === updatedTrip ? updatedTrip : trip);
+}
+
+export { formatDate, getTimeFromTo, generateTime, checkTripIsFuture, checkTripIsPast, checkTripIsPresent, updateTrip };
