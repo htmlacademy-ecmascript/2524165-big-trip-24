@@ -1,3 +1,4 @@
+import { nanoid } from 'nanoid';
 import { getRandomArrayElement, getRandomInteger } from '../utilities/util.js';
 import { generateTime } from '../utilities/trip.js';
 import { TYPES, DESTINATION_NAMES } from '../constants.js';
@@ -158,6 +159,7 @@ const OFFERS = [
 function generateTrip() {
   return (
     {
+      id: nanoid(),
       basePrice: getRandomInteger(MIN_RANDOM_BASE_PRICE, MAX_RANDOM_BASE_PRICE),
       dateFrom: '',
       dateTo: '',
