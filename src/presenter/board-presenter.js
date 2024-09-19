@@ -94,7 +94,7 @@ export default class BoardPresenter {
   };
 
   #dataChangeHandler = (updatedEvent) => {
-    updateEvent(this.#events, updatedEvent);
+    this.#events = updateEvent(this.#events, updatedEvent);
     this.#eventPresenters.get(updatedEvent.id).init(updatedEvent);
   };
 

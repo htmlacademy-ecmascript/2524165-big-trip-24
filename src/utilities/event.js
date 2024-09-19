@@ -43,7 +43,7 @@ function checkEventIsPast (event) {
 }
 
 function updateEvent (events, updatedEvent) {
-  return events.map((event) => event.id === updatedEvent ? updatedEvent : event);
+  return events.map((event) => event.id === updatedEvent.id ? updatedEvent : event);
 }
 
 function sortByPrice(firstEvent, secondEvent) {
