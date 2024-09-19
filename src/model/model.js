@@ -1,14 +1,14 @@
-import { getTrips } from '../mock/trip.js';
+import { getEvents } from '../mock/trip.js';
 import { getFilters } from '../mock/filter.js';
 
 export default class TripModel {
-  #trips = getTrips();
+  #events = getEvents();
 
-  get trips() {
-    return this.#trips;
+  get events() {
+    return this.#events;
   }
 
   get filters() {
-    return getFilters(this.#trips);
+    return getFilters(this.#events);
   }
 }
