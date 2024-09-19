@@ -1,9 +1,9 @@
 import { Filters } from '../utilities/filter';
 
-function getFilters (trips) {
+function getFilters (events) {
   return Object.entries(Filters).map(([filterType, filterFunc]) => ({
     type: filterType,
-    count: filterFunc(trips).length,
+    count: filterFunc(events).length,
   }));
 }
 

@@ -1,10 +1,10 @@
-import AbstractView from '../framework/view/abstract-view';
+import AbstractView from '../framework/view/abstract-view.js';
 import { TYPES, DESTINATION_NAMES } from '../constants.js';
-import { formatDate } from '../utilities/trip.js';
+import { formatDate } from '../utilities/event.js';
 import { DateFormats } from '../constants.js';
 
-function createFormEditPointTemplate (trip) {
-  const { basePrice, dateFrom, dateTo, destination: { name: destinationName, description }, type, offers } = trip;
+function createFormEditEventTemplate (event) {
+  const { basePrice, dateFrom, dateTo, destination: { name: destinationName, description }, type, offers } = event;
 
   return `<li class="trip-events__item">
             <form class="event event--edit" action="#" method="post">
@@ -29,7 +29,7 @@ function createFormEditPointTemplate (trip) {
           </li>`;
 }
 
-function createEventTypeListWrapper (tripType) {
+function createEventTypeListWrapper (eventType) {
   const eventTypeListItemsArray = [];
   for (let i = 0; i < TYPES.length; i++) {
     const type = TYPES[i].toLowerCase();
@@ -45,7 +45,7 @@ function createEventTypeListWrapper (tripType) {
   return `<div class="event__type-wrapper">
             <label class="event__type  event__type-btn" for="event-type-toggle-1">
               <span class="visually-hidden">Choose event type</span>
-              <img class="event__type-icon" width="17" height="17" src="img/icons/${tripType.toLowerCase()}.png" alt="Event type icon">
+              <img class="event__type-icon" width="17" height="17" src="img/icons/${eventType.toLowerCase()}.png" alt="Event type icon">
             </label>
             <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
             <div class="event__type-list">
@@ -57,7 +57,7 @@ function createEventTypeListWrapper (tripType) {
           </div>`;
 }
 
-function createDestinationFieldGroup(tripType, destinationName) {
+function createDestinationFieldGroup(eventType, destinationName) {
   const destinationOptionsArray = [];
   for (let i = 0; i < DESTINATION_NAMES.length; i++) {
     const destinationOption = `<option value="${DESTINATION_NAMES[i]}"></option>`;
@@ -67,7 +67,7 @@ function createDestinationFieldGroup(tripType, destinationName) {
 
   return `<div class="event__field-group  event__field-group--destination">
             <label class="event__label  event__type-output" for="event-destination-1">
-                ${tripType}
+                ${eventType}
             </label>
             <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destinationName}" list="destination-list-1">
             <datalist id="destination-list-1">
@@ -134,14 +134,14 @@ function createDestinationSection(description) {
           </section>`;
 }
 
-export default class FormEditPointView extends AbstractView {
-  #trip = null;
+export default class FormEditEventView extends AbstractView {
+  #event = null;
   #handleFormSubmit = null;
   #handleCloseButtonClick = null;
 
-  constructor (trip, onFormSubmit, onCloseButtonClick) {
+  constructor (event, onFormSubmit, onCloseButtonClick) {
     super();
-    this.#trip = trip;
+    this.#event = event;
     this.#handleFormSubmit = onFormSubmit;
     this.#handleCloseButtonClick = onCloseButtonClick;
     this.element.querySelector('.event.event--edit').addEventListener('submit', this.#formSubmitHandler);
@@ -149,7 +149,7 @@ export default class FormEditPointView extends AbstractView {
   }
 
   get template() {
-    return createFormEditPointTemplate(this.#trip);
+    return createFormEditEventTemplate(this.#event);
   }
 
   #formSubmitHandler = (evt) => {

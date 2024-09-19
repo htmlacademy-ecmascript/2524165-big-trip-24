@@ -1,5 +1,5 @@
 import AbstractView from '../framework/view/abstract-view';
-import { formatDate, getTimeFromTo } from '../utilities/trip';
+import { formatDate, getTimeFromTo } from '../utilities/event';
 import { DateFormats } from '../constants';
 
 function createOffersList(offers) {
@@ -19,11 +19,11 @@ function createOffersList(offers) {
             </ul>`;
 }
 
-function createListItemPointTemplate (trip) {
-  if (trip === null) {
+function createListItemPointTemplate (event) {
+  if (event === null) {
     return '<p class="trip-events__msg">Click New Event to create your first point</p>';
   }
-  const { basePrice, dateFrom, dateTo, destination: { name: destinationName }, isFavorite, type, offers } = trip;
+  const { basePrice, dateFrom, dateTo, destination: { name: destinationName }, isFavorite, type, offers } = event;
 
   const favoriteButtonActive = isFavorite ? 'event__favorite-btn--active' : '';
   const typeIconName = type.toLowerCase();
@@ -64,14 +64,14 @@ function createListItemPointTemplate (trip) {
             </li>`;
 }
 
-export default class TripPointView extends AbstractView {
-  #trip = null;
+export default class EventView extends AbstractView {
+  #event = null;
   #handleEditButtonClick = null;
   #handleFavoriteButtonClick = null;
 
-  constructor (trip, onEditButtonClick, onFavoriteButtonClick) {
+  constructor (event, onEditButtonClick, onFavoriteButtonClick) {
     super();
-    this.#trip = trip;
+    this.#event = event;
     this.#handleEditButtonClick = onEditButtonClick;
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editButtonClickHandler);
     this.#handleFavoriteButtonClick = onFavoriteButtonClick;
@@ -79,7 +79,7 @@ export default class TripPointView extends AbstractView {
   }
 
   get template() {
-    return createListItemPointTemplate(this.#trip);
+    return createListItemPointTemplate(this.#event);
   }
 
   #editButtonClickHandler = () => {

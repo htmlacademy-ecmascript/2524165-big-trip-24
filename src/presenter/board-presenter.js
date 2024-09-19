@@ -1,37 +1,40 @@
 import { render } from '../framework/render.js';
-import { updateTrip } from '../utilities/trip.js';
+import { updateEvent, sortByDay, sortByPrice, sortByTime } from '../utilities/event.js';
 import FilterListView from '../view/filter-list-view.js';
 import SortView from '../view/sort-view.js';
-import TripListView from '../view/trip-list-view.js';
-import TripListEmptyView from '../view/trip-list-empty-view.js';
-import TripPresenter from './trip-presenter.js';
+import EventListView from '../view/event-list-view.js';
+import EventListEmptyView from '../view/event-list-empty-view.js';
+import EventPresenter from './event-presenter.js';
+import { SortTypes } from '../constants.js';
 
 export default class BoardPresenter {
   #filterContainer = null;
   #filters = [];
-  #tripEventsContainer = null;
-  #tripListComponent = new TripListView();
   #tripModel = null;
-  #trips = [];
-  #tripPresenters = new Map();
+  #eventsContainer = null;
+  #eventListComponent = new EventListView();
+  #events = [];
+  #eventPresenters = new Map();
+  #currentSortType = SortTypes.DAY;
 
-  constructor(filterContainer, tripEventsContainer, tripModel) {
+  constructor(filterContainer, eventsContainer, tripModel) {
     this.#filterContainer = filterContainer;
-    this.#tripEventsContainer = tripEventsContainer;
+    this.#eventsContainer = eventsContainer;
     this.#tripModel = tripModel;
   }
 
   init() {
-    this.#trips = this.#tripModel.trips;
+    this.#events = [...this.#tripModel.events];
     this.#filters = this.#tripModel.filters;
 
     this.#renderFilterList();
-    if (this.#trips.length === 0) {
+    if (this.#events.length === 0) {
       this.#renderEmptyTripList();
       return;
     }
+    this.#sortEvents();
     this.#renderSortView();
-    this.#renderTrips();
+    this.#renderEvents();
   }
 
   #renderFilterList () {
@@ -39,31 +42,60 @@ export default class BoardPresenter {
   }
 
   #renderEmptyTripList () {
-    render(new TripListEmptyView(), this.#tripEventsContainer);
+    render(new EventListEmptyView(), this.#eventsContainer);
   }
 
   #renderSortView () {
-    render(new SortView(), this.#tripEventsContainer);
+    render(new SortView(this.#handleSortChange), this.#eventsContainer);
   }
 
-  #renderTrips () {
-    render(this.#tripListComponent, this.#tripEventsContainer);
+  #renderEvents () {
+    render(this.#eventListComponent, this.#eventsContainer);
 
-    const tripsCount = this.#trips.length;
-    for (let i = 0; i < tripsCount; i++) {
-      const tripPresenter = new TripPresenter(this.#tripListComponent.element, this.#dataChangeHandler, this.#handleModeChange);
-      tripPresenter.init(this.#trips[i]);
-      this.#tripPresenters.set(this.#trips[i].id, tripPresenter);
+    const eventsCount = this.#events.length;
+    for (let i = 0; i < eventsCount; i++) {
+      const eventPresenter = new EventPresenter(this.#eventListComponent.element, this.#dataChangeHandler, this.#handleModeChange);
+      eventPresenter.init(this.#events[i]);
+      this.#eventPresenters.set(this.#events[i].id, eventPresenter);
+    }
+  }
+
+  #clearEventList () {
+    this.#eventPresenters.forEach((presenter) => presenter.destroy());
+    this.#eventPresenters.clear();
+  }
+
+  #sortEvents () {
+    switch (this.#currentSortType) {
+      case SortTypes.DAY:
+        this.#events.sort(sortByDay);
+        break;
+      case SortTypes.PRICE:
+        this.#events.sort(sortByPrice);
+        break;
+      case SortTypes.TIME:
+        this.#events.sort(sortByTime);
+        break;
     }
   }
 
   #handleModeChange = () => {
-    this.#tripPresenters.forEach((presenter) => presenter.resetView());
+    this.#eventPresenters.forEach((presenter) => presenter.resetView());
   };
 
-  #dataChangeHandler = (updatedTrip) => {
-    updateTrip(this.#trips, updatedTrip);
-    this.#tripPresenters.get(updatedTrip.id).init(updatedTrip);
+  #handleSortChange = (sortType) => {
+    if (this.#currentSortType === sortType) {
+      return;
+    }
+    this.#currentSortType = sortType;
+    this.#sortEvents();
+    this.#clearEventList();
+    this.#renderEvents();
+  };
+
+  #dataChangeHandler = (updatedEvent) => {
+    this.#events = updateEvent(this.#events, updatedEvent);
+    this.#eventPresenters.get(updatedEvent.id).init(updatedEvent);
   };
 
 }

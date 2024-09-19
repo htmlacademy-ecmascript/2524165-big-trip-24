@@ -1,6 +1,6 @@
 import { nanoid } from 'nanoid';
 import { getRandomArrayElement, getRandomInteger } from '../utilities/util.js';
-import { generateTime } from '../utilities/trip.js';
+import { generateTime } from '../utilities/event.js';
 import { TYPES, DESTINATION_NAMES } from '../constants.js';
 
 const MAX_RANDOM_IMAGE_NUMBER = 5;
@@ -8,7 +8,7 @@ const MIN_RANDOM_BASE_PRICE = 200;
 const MAX_RANDOM_BASE_PRICE = 3000;
 const MIN_RANDOM_OFFER_PRICE = 10;
 const MAX_RANDOM_OFFER_PRICE = 100;
-const TRIP_COUNT = 10;
+const EVENTS_COUNT = 10;
 
 const DESCRIPTIONS = [
   'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
@@ -156,7 +156,7 @@ const OFFERS = [
   },
 ];
 
-function generateTrip() {
+function generateEvent() {
   return (
     {
       id: nanoid(),
@@ -171,25 +171,25 @@ function generateTrip() {
   );
 }
 
-function getOffersForTripsByType (tripArr, offersArr) {
-  tripArr.forEach((trip) => {
-    const offer = offersArr.find((element) => element.type === trip.type);
-    trip.offers = offer.offers;
+function getOffersForEventsByType (eventsArr, offersArr) {
+  eventsArr.forEach((event) => {
+    const offer = offersArr.find((element) => element.type === event.type);
+    event.offers = offer.offers;
   });
 }
 
-function generateDatesForTrips(tripArr) {
-  tripArr.forEach((trip) => {
-    generateTime(trip);
+function generateDatesForEvents(eventsArr) {
+  eventsArr.forEach((event) => {
+    generateTime(event);
   });
 }
 
-function getTrips() {
-  const randomTrips = Array.from({length: getRandomInteger(0, TRIP_COUNT)}, generateTrip);
-  getOffersForTripsByType(randomTrips, OFFERS);
-  generateDatesForTrips(randomTrips);
-  return randomTrips;
+function getEvents() {
+  const randomEvents = Array.from({length: getRandomInteger(0, EVENTS_COUNT)}, generateEvent);
+  getOffersForEventsByType(randomEvents, OFFERS);
+  generateDatesForEvents(randomEvents);
+  return randomEvents;
 }
 
 
-export { getTrips };
+export { getEvents };

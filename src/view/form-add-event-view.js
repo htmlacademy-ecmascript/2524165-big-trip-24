@@ -1,6 +1,6 @@
-import AbstractView from '../framework/view/abstract-view';
+import AbstractView from '../framework/view/abstract-view.js';
 import { TYPES, DESTINATION_NAMES } from '../constants.js';
-import { formatDate } from '../utilities/trip.js';
+import { formatDate } from '../utilities/event.js';
 import { DateFormats } from '../constants.js';
 
 const DEFAULT_TYPE = 'Taxi';
@@ -16,7 +16,7 @@ const DEFAULT_OFFERS = [
   }
 ];
 
-const BLANK_TRIP = {
+const BLANK_EVENT = {
   basePrice: '',
   dateFrom: '',
   dateTo: '',
@@ -30,9 +30,9 @@ const BLANK_TRIP = {
   offers: DEFAULT_OFFERS,
 };
 
-function createFormAddPointTemplate () {
-  const offers = BLANK_TRIP.offers;
-  const destinationDescription = BLANK_TRIP.destination.description;
+function createFormAddEventTemplate () {
+  const offers = BLANK_EVENT.offers;
+  const destinationDescription = BLANK_EVENT.destination.description;
 
   return `<li class="trip-events__item">
             <form class="event event--edit" action="#" method="post">
@@ -58,7 +58,7 @@ function createFormAddPointTemplate () {
 }
 
 function createEventTypeListWrapper () {
-  const typeIconName = BLANK_TRIP.type.toLowerCase();
+  const typeIconName = BLANK_EVENT.type.toLowerCase();
 
   const eventTypeListItemsArray = [];
   for (let i = 0; i < TYPES.length; i++) {
@@ -88,8 +88,8 @@ function createEventTypeListWrapper () {
 }
 
 function createDestinationFieldGroup() {
-  const type = BLANK_TRIP.type;
-  const destinationName = BLANK_TRIP.destination.name;
+  const type = BLANK_EVENT.type;
+  const destinationName = BLANK_EVENT.destination.name;
 
   const destinationOptionsArray = [];
   for (let i = 0; i < DESTINATION_NAMES.length; i++) {
@@ -110,8 +110,8 @@ function createDestinationFieldGroup() {
 }
 
 function createTimeFieldGroup() {
-  const formattedDateFrom = BLANK_TRIP.dateFrom ? formatDate(BLANK_TRIP.dateFrom, DateFormats.FULLDATE) : '';
-  const formattedDateTo = BLANK_TRIP.dateTo ? formatDate(BLANK_TRIP.dateTo, DateFormats.FULLDATE) : '';
+  const formattedDateFrom = BLANK_EVENT.dateFrom ? formatDate(BLANK_EVENT.dateFrom, DateFormats.FULLDATE) : '';
+  const formattedDateTo = BLANK_EVENT.dateTo ? formatDate(BLANK_EVENT.dateTo, DateFormats.FULLDATE) : '';
   return `<div class="event__field-group  event__field-group--time">
             <label class="visually-hidden" for="event-start-time-1">From</label>
             <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${formattedDateFrom}">
@@ -122,7 +122,7 @@ function createTimeFieldGroup() {
 }
 
 function createPriceFieldGroup() {
-  const basePrice = BLANK_TRIP.basePrice;
+  const basePrice = BLANK_EVENT.basePrice;
   return `<div class="event__field-group  event__field-group--price">
             <label class="event__label" for="event-price-1">
               <span class="visually-hidden">Price</span>
@@ -133,13 +133,13 @@ function createPriceFieldGroup() {
 }
 
 function createOffersSection() {
-  if (BLANK_TRIP.offers.length < 1) {
+  if (BLANK_EVENT.offers.length < 1) {
     return '';
   }
   const offerSelectorsArray = [];
-  for (let i = 0; i < BLANK_TRIP.offers.length; i++) {
-    const offerTitle = BLANK_TRIP.offers[i].title;
-    const offerPrice = BLANK_TRIP.offers[i].price;
+  for (let i = 0; i < BLANK_EVENT.offers.length; i++) {
+    const offerTitle = BLANK_EVENT.offers[i].title;
+    const offerPrice = BLANK_EVENT.offers[i].price;
     const offerName = offerTitle.replace(/\s+/g, '').toLowerCase();
     const offerSelector = `<div class="event__offer-selector">
                             <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offerName}-1" type="checkbox" name="event-offer-${offerName}" checked>
@@ -162,10 +162,10 @@ function createOffersSection() {
 }
 
 function createDestinationSection() {
-  if (!BLANK_TRIP.destination.name) {
+  if (!BLANK_EVENT.destination.name) {
     return '';
   }
-  const destination = BLANK_TRIP.destination;
+  const destination = BLANK_EVENT.destination;
   const destinationDescription = destination.description;
 
   const destinationPicturesArray = [];
@@ -186,10 +186,10 @@ function createDestinationSection() {
           </section>`;
 }
 
-export default class FormAddPointView extends AbstractView {
+export default class FormAddEventView extends AbstractView {
 
   get template() {
-    return createFormAddPointTemplate();
+    return createFormAddEventTemplate();
   }
 
 }

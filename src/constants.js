@@ -31,4 +31,12 @@ const FilterTypes = {
   PAST: 'past'
 };
 
-export { TYPES, DESTINATION_NAMES, DateFormats, FilterTypes };
+const SortTypes = {
+  DAY: 'day',
+  PRICE: 'price',
+  TIME: 'time',
+};
+
+const ESCAPE_KEY = 'Escape';
+
+export { TYPES, DESTINATION_NAMES, ESCAPE_KEY, DateFormats, FilterTypes, SortTypes };
