@@ -1,10 +1,11 @@
-import AbstractView from '../framework/view/abstract-view.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import { TYPES, DESTINATION_NAMES } from '../constants.js';
 import { formatDate } from '../utilities/event.js';
 import { DateFormats } from '../constants.js';
+import dayjs from 'dayjs';
 
 function createFormEditEventTemplate (event) {
-  const { basePrice, dateFrom, dateTo, destination: { name: destinationName, description }, type, offers } = event;
+  const { basePrice, dateFrom, dateTo, destination: { name: destinationName, description, pictures }, type, offers } = event;
 
   return `<li class="trip-events__item">
             <form class="event event--edit" action="#" method="post">
@@ -23,7 +24,7 @@ function createFormEditEventTemplate (event) {
                 </header>
                 <section class="event__details">
                   ${createOffersSection(offers)}
-                  ${createDestinationSection(description)}
+                  ${createDestinationSection(description, pictures)}
                 </section>
             </form>
           </li>`;
@@ -69,7 +70,7 @@ function createDestinationFieldGroup(eventType, destinationName) {
             <label class="event__label  event__type-output" for="event-destination-1">
                 ${eventType}
             </label>
-            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destinationName}" list="destination-list-1">
+            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destinationName ? destinationName : ''}" list="destination-list-1">
             <datalist id="destination-list-1">
               ${destinationOptions}
             </datalist>
@@ -127,34 +128,87 @@ function createOffersSection(offers) {
           </section>`;
 }
 
-function createDestinationSection(description) {
+function createDestinationSection(description, pictures) {
+  if (!description) {
+    return '';
+  }
+
+  const picturesArray = [];
+  for (let i = 0; i < pictures.length; i++) {
+    const picture = `<img class="event__photo" src="${pictures[i].src}" alt="Event photo"></img>`;
+    picturesArray.push(picture);
+  }
+  const destinationPictures = picturesArray.join('\n');
+
   return `<section class="event__section  event__section--destination">
             <h3 class="event__section-title  event__section-title--destination">Destination</h3>
             <p class="event__destination-description">${description}</p>
+            <div class="event__photos-container">
+              <div class="event__photos-tape">
+                ${destinationPictures}
+              </div>
+            </div>
           </section>`;
 }
 
-export default class FormEditEventView extends AbstractView {
+export default class FormEditEventView extends AbstractStatefulView {
   #event = null;
   #handleFormSubmit = null;
+  #handleFormTypeChange = null;
+  #handleFormDestinationChange = null;
   #handleCloseButtonClick = null;
 
-  constructor (event, onFormSubmit, onCloseButtonClick) {
+  constructor (event, onFormSubmit, onCloseButtonClick, onFormTypeChange, onFormDestinationChange) {
     super();
     this.#event = event;
+    this._setState(FormEditEventView.parseEventToState(this.#event));
     this.#handleFormSubmit = onFormSubmit;
     this.#handleCloseButtonClick = onCloseButtonClick;
-    this.element.querySelector('.event.event--edit').addEventListener('submit', this.#formSubmitHandler);
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#closeButtonClickHandler);
+    this.#handleFormTypeChange = onFormTypeChange;
+    this.#handleFormDestinationChange = onFormDestinationChange;
+    this._restoreHandlers();
   }
 
   get template() {
-    return createFormEditEventTemplate(this.#event);
+    return createFormEditEventTemplate(this._state);
+  }
+
+  static parseEventToState (event) {
+    if (event.dateFrom instanceof dayjs) {
+      const dateFrom = event.dateFrom.toDate();
+      const dateTo = event.dateTo.toDate();
+      return {...event, dateFrom: dateFrom, dateTo: dateTo};
+    }
+    return event;
+  }
+
+  _restoreHandlers () {
+    this.element.querySelector('.event.event--edit').addEventListener('submit', this.#formSubmitHandler);
+    this.element.querySelector('.event.event--edit').addEventListener('change', this.#formChangeHandler);
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#closeButtonClickHandler);
+  }
+
+  reset (event) {
+    this.updateElement(FormEditEventView.parseEventToState(event));
   }
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#handleFormSubmit();
+    this.#handleFormSubmit(this._state);
+  };
+
+  #formChangeHandler = (evt) => {
+    evt.preventDefault();
+    if (evt.target.matches('.event__type-input')) {
+      const type = evt.target.value.at(0).toUpperCase() + evt.target.value.slice(1);
+      const offers = this.#handleFormTypeChange(type);
+      this.updateElement({...this._state, type: type, offers: offers});
+    }
+    if (evt.target.matches('.event__input--destination')) {
+      const destinationName = evt.target.value;
+      const destination = this.#handleFormDestinationChange(destinationName);
+      this.updateElement({...this._state, destination: destination});
+    }
   };
 
   #closeButtonClickHandler = (evt) => {

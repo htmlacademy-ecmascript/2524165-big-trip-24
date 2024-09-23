@@ -19,7 +19,7 @@ const DESTINATION_NAMES = [
 ];
 
 const DateFormats = {
-  FULLDATE: 'DD/MM/YYYY h:mm',
+  FULLDATE: 'DD/MM/YYYY HH:mm',
   HOURS: 'H:mm',
   MONTHDAY: 'D/MMM'
 };
@@ -37,6 +37,4 @@ const SortTypes = {
   TIME: 'time',
 };
 
-const ESCAPE_KEY = 'Escape';
-
-export { TYPES, DESTINATION_NAMES, ESCAPE_KEY, DateFormats, FilterTypes, SortTypes };
+export { TYPES, DESTINATION_NAMES, DateFormats, FilterTypes, SortTypes };

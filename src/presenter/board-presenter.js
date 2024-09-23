@@ -11,21 +11,31 @@ export default class BoardPresenter {
   #filterContainer = null;
   #filters = [];
   #tripModel = null;
+  #offersModel = null;
+  #offers = [];
+  #destinationsModel = null;
+  #destinations = [];
   #eventsContainer = null;
   #eventListComponent = new EventListView();
   #events = [];
   #eventPresenters = new Map();
   #currentSortType = SortTypes.DAY;
 
-  constructor(filterContainer, eventsContainer, tripModel) {
+  constructor(filterContainer, eventsContainer, tripModel, offersModel, destinationsModel) {
     this.#filterContainer = filterContainer;
     this.#eventsContainer = eventsContainer;
     this.#tripModel = tripModel;
+    this.#offersModel = offersModel;
+    this.#destinationsModel = destinationsModel;
   }
 
   init() {
-    this.#events = [...this.#tripModel.events];
+    this.#events = this.#tripModel.events;
     this.#filters = this.#tripModel.filters;
+    this.#offers = this.#offersModel.offers;
+    this.#destinations = this.#destinationsModel.destinations;
+    this.#getOffersForEventsByType(this.#events, this.#offers);
+    this.#getDestinationsForEventsByType(this.#events, this.#destinations);
 
     this.#renderFilterList();
     if (this.#events.length === 0) {
@@ -35,6 +45,20 @@ export default class BoardPresenter {
     this.#sortEvents();
     this.#renderSortView();
     this.#renderEvents();
+  }
+
+  #getOffersForEventsByType (eventsArr, offersArr) {
+    eventsArr.forEach((event) => {
+      const offer = offersArr.find((element) => element.type === event.type);
+      event.offers = offer.offers;
+    });
+  }
+
+  #getDestinationsForEventsByType (eventsArr, destinationsArr) {
+    eventsArr.forEach((event) => {
+      const destination = destinationsArr.find((element) => element.name === event.destination);
+      event.destination = destination;
+    });
   }
 
   #renderFilterList () {
@@ -54,7 +78,7 @@ export default class BoardPresenter {
 
     const eventsCount = this.#events.length;
     for (let i = 0; i < eventsCount; i++) {
-      const eventPresenter = new EventPresenter(this.#eventListComponent.element, this.#dataChangeHandler, this.#handleModeChange);
+      const eventPresenter = new EventPresenter(this.#eventListComponent.element, this.#dataChangeHandler, this.#handleModeChange, this.#handleFormTypeChange, this.#handleFormDestinationChange);
       eventPresenter.init(this.#events[i]);
       this.#eventPresenters.set(this.#events[i].id, eventPresenter);
     }
@@ -96,6 +120,16 @@ export default class BoardPresenter {
   #dataChangeHandler = (updatedEvent) => {
     this.#events = updateEvent(this.#events, updatedEvent);
     this.#eventPresenters.get(updatedEvent.id).init(updatedEvent);
+  };
+
+  #handleFormTypeChange = (type) => {
+    const offers = this.#offers.find((element) => element.type === type);
+    return offers.offers;
+  };
+
+  #handleFormDestinationChange = (destinationName) => {
+    const destination = this.#destinations.find((element) => element.name === destinationName);
+    return destination;
   };
 
 }
