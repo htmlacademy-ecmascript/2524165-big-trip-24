@@ -1,5 +1,5 @@
 import { render, replace, remove } from '../framework/render.js';
-import { ESCAPE_KEY } from '../constants.js';
+import { isEscKey } from '../utilities/util.js';
 import FormEditPointView from '../view/form-edit-event-view.js';
 import EventPointView from '../view/event-view.js';
 
@@ -17,11 +17,15 @@ export default class EventPresenter {
   #mode = Mode.DEFAULT;
   #dataChangeHandler = null;
   #modeChangeHandler = null;
+  #formTypeChangeHandler = null;
+  #formDestinationChangeHandler = null;
 
-  constructor(eventContainer, onDataChange, onModeChange) {
+  constructor(eventContainer, onDataChange, onModeChange, onFormTypeChange, onFormDestinationChange) {
     this.#eventContainer = eventContainer;
     this.#dataChangeHandler = onDataChange;
     this.#modeChangeHandler = onModeChange;
+    this.#formTypeChangeHandler = onFormTypeChange;
+    this.#formDestinationChangeHandler = onFormDestinationChange;
   }
 
   init (event) {
@@ -30,8 +34,8 @@ export default class EventPresenter {
     const prevEventComponent = this.#eventComponent;
     const prevEventEditComponent = this.#eventEditComponent;
 
-    this.#eventComponent = new EventPointView(event, this.#onEditButtonClick, this.#onFavoriteButtonClick);
-    this.#eventEditComponent = new FormEditPointView(event, this.#onFormSubmit, this.#onCloseButtonClick);
+    this.#eventComponent = new EventPointView(this.#event, this.#onEditButtonClick, this.#onFavoriteButtonClick);
+    this.#eventEditComponent = new FormEditPointView(this.#event, this.#onFormSubmit, this.#onCloseButtonClick, this.#onFormTypeChange, this.#onFormDestinationChange);
 
     if (prevEventComponent === null || prevEventEditComponent === null) {
       render(this.#eventComponent, this.#eventContainer);
@@ -63,8 +67,9 @@ export default class EventPresenter {
   }
 
   #escKeyDownHandler = (evt) => {
-    if (evt.key === ESCAPE_KEY) {
+    if (isEscKey(evt)) {
       evt.preventDefault();
+      this.#eventEditComponent.reset(this.#event);
       this.#replaceFormToEvent();
       document.removeEventListener('keydown', this.#escKeyDownHandler);
     }
@@ -79,12 +84,24 @@ export default class EventPresenter {
     this.#dataChangeHandler({...this.#event, isFavorite: !this.#event.isFavorite});
   };
 
-  #onFormSubmit = () => {
+  #onFormSubmit = (updatedEvent) => {
+    this.#dataChangeHandler(updatedEvent);
     this.#replaceFormToEvent();
     document.removeEventListener('keydown', this.#escKeyDownHandler);
   };
 
+  #onFormTypeChange = (type) => {
+    const offers = this.#formTypeChangeHandler(type);
+    return offers;
+  };
+
+  #onFormDestinationChange = (destinationName) => {
+    const destination = this.#formDestinationChangeHandler(destinationName);
+    return destination ? destination : '';
+  };
+
   #onCloseButtonClick = () => {
+    this.#eventEditComponent.reset(this.#event);
     this.#replaceFormToEvent();
     document.removeEventListener('keydown', this.#escKeyDownHandler);
   };

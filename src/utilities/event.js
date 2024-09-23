@@ -6,8 +6,8 @@ const MAX_RANDOM_DATE_FROM = 1500;
 const MIN_RANDOM_DATE_TO = 10;
 const MAX_RANDOM_DATE_TO = 600;
 
-function formatDate(date, format) {
-  return date.format(format);
+function formatDate(date, dateFormat) {
+  return dayjs(date).format(dateFormat);
 }
 
 function generateTime(event) {
