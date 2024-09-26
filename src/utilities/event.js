@@ -17,14 +17,24 @@ function generateTime(event) {
   event.dateTo = event.dateTo.minute(event.dateTo.minute() + getRandomInteger(MIN_RANDOM_DATE_TO, MAX_RANDOM_DATE_TO));
 }
 
+function timeToString (amount, letter) {
+  if (amount) {
+    return amount > 9 ? `${amount}${letter} ` : `0${amount}${letter} `;
+  }
+  return '';
+}
+
 function getTimeFromTo(dateFrom, dateTo) {
   const time = dayjs(dateTo).diff(dateFrom, 'minutes');
   const hours = Math.trunc(time / 60);
+  const days = Math.trunc(hours / 24);
   const minutes = time % 60;
-  const hoursString = hours ? `${hours}H ` : '';
-  const minutesString = minutes ? `${minutes}M` : '';
 
-  return `${hoursString}${minutesString}`;
+  const hoursString = timeToString(hours, 'H');
+  const daysString = timeToString(days, 'D');
+  const minutesString = timeToString(minutes, 'M');
+
+  return `${daysString}${hoursString}${minutesString}`;
 }
 
 function checkEventIsFuture (event) {
