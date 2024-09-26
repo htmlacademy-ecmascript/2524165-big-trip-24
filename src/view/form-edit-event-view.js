@@ -3,6 +3,9 @@ import { TYPES, DESTINATION_NAMES } from '../constants.js';
 import { formatDate } from '../utilities/event.js';
 import { DateFormats } from '../constants.js';
 import dayjs from 'dayjs';
+import flatpickr from 'flatpickr';
+
+import 'flatpickr/dist/flatpickr.min.css';
 
 function createFormEditEventTemplate (event) {
   const { basePrice, dateFrom, dateTo, destination: { name: destinationName, description, pictures }, type, offers } = event;
@@ -108,9 +111,10 @@ function createOffersSection(offers) {
     const offerTitle = offers[i].title;
     const offerPrice = offers[i].price;
     const offerName = offerTitle.replace(/\s+/g, '').toLowerCase();
+    const offerIsChecked = offers[i].isChecked ? 'checked' : '';
     const offerSelector = `<div class="event__offer-selector">
-                            <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offerName}-1" type="checkbox" name="event-offer-${offerName}" checked>
-                            <label class="event__offer-label" for="event-offer-${offerName}-1">
+                            <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offerName}" type="checkbox" name="event-offer-${offerName}" ${offerIsChecked} data-id="${i}">
+                            <label class="event__offer-label" for="event-offer-${offerName}">
                               <span class="event__offer-title">${offerTitle}</span>
                               &plus;&euro;&nbsp;
                               <span class="event__offer-price">${offerPrice}</span>
@@ -157,6 +161,8 @@ export default class FormEditEventView extends AbstractStatefulView {
   #handleFormTypeChange = null;
   #handleFormDestinationChange = null;
   #handleCloseButtonClick = null;
+  #datepickerFrom = null;
+  #datepickerTo = null;
 
   constructor (event, onFormSubmit, onCloseButtonClick, onFormTypeChange, onFormDestinationChange) {
     super();
@@ -173,7 +179,25 @@ export default class FormEditEventView extends AbstractStatefulView {
     return createFormEditEventTemplate(this._state);
   }
 
+  removeElement() {
+    super.removeElement();
+
+    if (this.#datepickerFrom) {
+      this.#datepickerFrom.destroy();
+      this.#datepickerFrom = null;
+    }
+
+    if (this.#datepickerTo) {
+      this.#datepickerTo.destroy();
+      this.#datepickerTo = null;
+    }
+  }
+
   static parseEventToState (event) {
+    event.offers.forEach((offer, index) => {
+      offer.id = index;
+      offer.isChecked = offer.isChecked || false;
+    });
     if (event.dateFrom instanceof dayjs) {
       const dateFrom = event.dateFrom.toDate();
       const dateTo = event.dateTo.toDate();
@@ -182,19 +206,51 @@ export default class FormEditEventView extends AbstractStatefulView {
     return event;
   }
 
+  static parseStateToEvent (state) {
+    const event = {...state};
+
+    return event;
+  }
+
   _restoreHandlers () {
     this.element.querySelector('.event.event--edit').addEventListener('submit', this.#formSubmitHandler);
     this.element.querySelector('.event.event--edit').addEventListener('change', this.#formChangeHandler);
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#closeButtonClickHandler);
+    if (this.element.querySelector('.event__available-offers')) {
+      this.element.querySelector('.event__available-offers').addEventListener('click', this.#offerClickHandler);
+    }
+    this.#setDatepicker();
   }
 
   reset (event) {
     this.updateElement(FormEditEventView.parseEventToState(event));
   }
 
+  #setDatepicker() {
+    this.#datepickerFrom = flatpickr(
+      this.element.querySelector('.event__input--time[id="event-start-time-1"'),
+      {
+        dateFormat: 'd/m/y H:i',
+        enableTime: true,
+        defaultDate: this._state.dateFrom,
+        onChange: this.#dateFromChangeHandler,
+      },
+    );
+    this.#datepickerTo = flatpickr(
+      this.element.querySelector('.event__input--time[id="event-end-time-1"'),
+      {
+        dateFormat: 'd/m/y H:i',
+        enableTime: true,
+        defaultDate: this._state.dateTo,
+        minDate: this._state.dateFrom,
+        onChange: this.#dateToChangeHandler,
+      },
+    );
+  }
+
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#handleFormSubmit(this._state);
+    this.#handleFormSubmit(FormEditEventView.parseStateToEvent(this._state));
   };
 
   #formChangeHandler = (evt) => {
@@ -210,6 +266,32 @@ export default class FormEditEventView extends AbstractStatefulView {
       this.updateElement({...this._state, destination: destination});
     }
   };
+
+  #offerClickHandler = (evt) => {
+    if (evt.target.matches('.event__offer-checkbox')) {
+      const offers = this._state.offers;
+      const targetID = parseInt(evt.target.dataset.id, 10);
+
+      const selectedOfferIndex = offers.findIndex((offer) => offer.id === targetID);
+
+      this._state.offers[selectedOfferIndex].isChecked = !this._state.offers[selectedOfferIndex].isChecked;
+
+      this.updateElement({...this._state});
+    }
+  };
+
+  #dateFromChangeHandler = ([dateFrom]) => {
+    if (dayjs(this._state.dateTo).diff(dateFrom, 'minutes') < 0) {
+      this.updateElement({...this._state, dateFrom: dateFrom, dateTo: dateFrom});
+    } else {
+      this.updateElement({...this._state, dateFrom: dateFrom});
+    }
+  };
+
+  #dateToChangeHandler = ([dateTo]) => {
+    this.updateElement({...this._state, dateTo: dateTo});
+  };
+
 
   #closeButtonClickHandler = (evt) => {
     evt.preventDefault();
