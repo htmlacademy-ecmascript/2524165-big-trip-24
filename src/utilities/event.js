@@ -52,10 +52,6 @@ function checkEventIsPast (event) {
   return event.dateTo <= dateNow;
 }
 
-function updateEvent (events, updatedEvent) {
-  return events.map((event) => event.id === updatedEvent.id ? updatedEvent : event);
-}
-
 function sortByPrice(firstEvent, secondEvent) {
   return secondEvent.basePrice - firstEvent.basePrice;
 }
@@ -74,4 +70,4 @@ function sortByDay(firstEvent, secondEvent) {
   return firstEventDay - secondEventDay;
 }
 
-export { formatDate, getTimeFromTo, generateTime, checkEventIsFuture, checkEventIsPast, checkEventIsPresent, updateEvent, sortByPrice, sortByTime, sortByDay};
+export { formatDate, getTimeFromTo, generateTime, checkEventIsFuture, checkEventIsPast, checkEventIsPresent, sortByPrice, sortByTime, sortByDay};

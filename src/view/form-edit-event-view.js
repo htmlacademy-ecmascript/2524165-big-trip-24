@@ -161,17 +161,22 @@ export default class FormEditEventView extends AbstractStatefulView {
   #handleFormTypeChange = null;
   #handleFormDestinationChange = null;
   #handleCloseButtonClick = null;
+  #handleDeleteButtonClick = null;
+
   #datepickerFrom = null;
   #datepickerTo = null;
 
-  constructor (event, onFormSubmit, onCloseButtonClick, onFormTypeChange, onFormDestinationChange) {
+  constructor (event, onFormSubmit, onCloseButtonClick, onFormTypeChange, onFormDestinationChange, onDeleteButtonClick) {
     super();
     this.#event = event;
     this._setState(FormEditEventView.parseEventToState(this.#event));
+
     this.#handleFormSubmit = onFormSubmit;
     this.#handleCloseButtonClick = onCloseButtonClick;
     this.#handleFormTypeChange = onFormTypeChange;
     this.#handleFormDestinationChange = onFormDestinationChange;
+    this.#handleDeleteButtonClick = onDeleteButtonClick;
+
     this._restoreHandlers();
   }
 
@@ -216,9 +221,12 @@ export default class FormEditEventView extends AbstractStatefulView {
     this.element.querySelector('.event.event--edit').addEventListener('submit', this.#formSubmitHandler);
     this.element.querySelector('.event.event--edit').addEventListener('change', this.#formChangeHandler);
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#closeButtonClickHandler);
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#deleteButtonClickHandler);
+
     if (this.element.querySelector('.event__available-offers')) {
       this.element.querySelector('.event__available-offers').addEventListener('click', this.#offerClickHandler);
     }
+
     this.#setDatepicker();
   }
 
@@ -292,6 +300,9 @@ export default class FormEditEventView extends AbstractStatefulView {
     this.updateElement({...this._state, dateTo: dateTo});
   };
 
+  #deleteButtonClickHandler = () => {
+    this.#handleDeleteButtonClick();
+  };
 
   #closeButtonClickHandler = (evt) => {
     evt.preventDefault();
