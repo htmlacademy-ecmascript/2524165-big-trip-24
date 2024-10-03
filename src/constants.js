@@ -37,4 +37,16 @@ const SortTypes = {
   TIME: 'time',
 };
 
-export { TYPES, DESTINATION_NAMES, DateFormats, FilterTypes, SortTypes };
+const ActionTypes = {
+  ADD_TRIP: 'ADD_TRIP',
+  UPDATE_TRIP: 'UPDATE_TRIP',
+  DELETE_TRIP: 'DELETE_TRIP',
+};
+
+const UpdateTypes = {
+  PATCH: 'Patch',
+  MINOR: 'Minor',
+  MAJOR: 'Major',
+};
+
+export { TYPES, DESTINATION_NAMES, DateFormats, FilterTypes, SortTypes, ActionTypes, UpdateTypes };

@@ -2,6 +2,7 @@ import { render, replace, remove } from '../framework/render.js';
 import { isEscKey } from '../utilities/util.js';
 import FormEditPointView from '../view/form-edit-event-view.js';
 import EventPointView from '../view/event-view.js';
+import { ActionTypes, UpdateTypes } from '../constants.js';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -35,7 +36,7 @@ export default class EventPresenter {
     const prevEventEditComponent = this.#eventEditComponent;
 
     this.#eventComponent = new EventPointView(this.#event, this.#onEditButtonClick, this.#onFavoriteButtonClick);
-    this.#eventEditComponent = new FormEditPointView(this.#event, this.#onFormSubmit, this.#onCloseButtonClick, this.#onFormTypeChange, this.#onFormDestinationChange);
+    this.#eventEditComponent = new FormEditPointView(this.#event, this.#onFormSubmit, this.#onCloseButtonClick, this.#onFormTypeChange, this.#onFormDestinationChange, this.#onDeleteButtonClick);
 
     if (prevEventComponent === null || prevEventEditComponent === null) {
       render(this.#eventComponent, this.#eventContainer);
@@ -81,11 +82,12 @@ export default class EventPresenter {
   };
 
   #onFavoriteButtonClick = () => {
-    this.#dataChangeHandler({...this.#event, isFavorite: !this.#event.isFavorite});
+    const updatedEvent = {...this.#event, isFavorite: !this.#event.isFavorite};
+    this.#dataChangeHandler(ActionTypes.UPDATE_TRIP, UpdateTypes.PATCH, updatedEvent);
   };
 
   #onFormSubmit = (updatedEvent) => {
-    this.#dataChangeHandler(updatedEvent);
+    this.#dataChangeHandler(ActionTypes.UPDATE_TRIP, UpdateTypes.MINOR, updatedEvent);
     this.#replaceFormToEvent();
     document.removeEventListener('keydown', this.#escKeyDownHandler);
   };
@@ -98,6 +100,10 @@ export default class EventPresenter {
   #onFormDestinationChange = (destinationName) => {
     const destination = this.#formDestinationChangeHandler(destinationName);
     return destination ? destination : '';
+  };
+
+  #onDeleteButtonClick = () => {
+    this.#dataChangeHandler(ActionTypes.DELETE_TRIP, UpdateTypes.MINOR, this.#event);
   };
 
   #onCloseButtonClick = () => {

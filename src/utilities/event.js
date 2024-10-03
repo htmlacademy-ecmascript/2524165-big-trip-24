@@ -5,6 +5,9 @@ const MIN_RANDOM_DATE_FROM = -1500;
 const MAX_RANDOM_DATE_FROM = 1500;
 const MIN_RANDOM_DATE_TO = 10;
 const MAX_RANDOM_DATE_TO = 600;
+const MINUTES_IN_AN_HOUR = 60;
+const HOURS_IN_A_DAY = 24;
+const MIN_LETTERS_AMOUNT = 2;
 
 function formatDate(date, dateFormat) {
   return dayjs(date).format(dateFormat);
@@ -18,23 +21,20 @@ function generateTime(event) {
 }
 
 function timeToString (amount, letter) {
-  if (amount) {
-    return amount > 9 ? `${amount}${letter} ` : `0${amount}${letter} `;
-  }
-  return '';
+  return `${amount}${letter}`;
 }
 
 function getTimeFromTo(dateFrom, dateTo) {
   const time = dayjs(dateTo).diff(dateFrom, 'minutes');
-  const hours = Math.trunc(time / 60);
-  const days = Math.trunc(hours / 24);
-  const minutes = time % 60;
+  const hours = Math.trunc(time / MINUTES_IN_AN_HOUR);
+  const days = Math.trunc(hours / HOURS_IN_A_DAY);
+  const minutes = time % MINUTES_IN_AN_HOUR;
 
-  const hoursString = timeToString(hours, 'H');
-  const daysString = timeToString(days, 'D');
-  const minutesString = timeToString(minutes, 'M');
+  const hoursString = hours ? timeToString(hours, 'H').padStart(MIN_LETTERS_AMOUNT, '0') : '';
+  const daysString = days ? timeToString(days, 'D').padStart(MIN_LETTERS_AMOUNT, '0') : '';
+  const minutesString = minutes ? timeToString(minutes, 'M').padStart(MIN_LETTERS_AMOUNT, '0') : '';
 
-  return `${daysString}${hoursString}${minutesString}`;
+  return `${daysString} ${hoursString} ${minutesString}`;
 }
 
 function checkEventIsFuture (event) {
@@ -50,10 +50,6 @@ function checkEventIsPresent (event) {
 function checkEventIsPast (event) {
   const dateNow = dayjs();
   return event.dateTo <= dateNow;
-}
-
-function updateEvent (events, updatedEvent) {
-  return events.map((event) => event.id === updatedEvent.id ? updatedEvent : event);
 }
 
 function sortByPrice(firstEvent, secondEvent) {
@@ -74,4 +70,4 @@ function sortByDay(firstEvent, secondEvent) {
   return firstEventDay - secondEventDay;
 }
 
-export { formatDate, getTimeFromTo, generateTime, checkEventIsFuture, checkEventIsPast, checkEventIsPresent, updateEvent, sortByPrice, sortByTime, sortByDay};
+export { formatDate, getTimeFromTo, generateTime, checkEventIsFuture, checkEventIsPast, checkEventIsPresent, sortByPrice, sortByTime, sortByDay};
