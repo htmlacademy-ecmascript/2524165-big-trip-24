@@ -9,12 +9,6 @@ export default class TripModel extends Observable {
   }
 
   updateEvent(updateType, update) {
-    // const index = this.#events.findIndex((task) => task.id === update.id);
-
-    // if (index === -1) {
-    //   throw new Error('Can\'t update unexisting task');
-    // }
-
     this.#events = this.#events.map((event) => event.id === update.id ? update : event);
 
     this._notify(updateType, update);
@@ -31,10 +25,6 @@ export default class TripModel extends Observable {
 
   deleteEvent(updateType, update) {
     const index = this.#events.findIndex((event) => event.id === update.id);
-
-    // if (index === -1) {
-    //   throw new Error('Can\'t delete unexisting task');
-    // }
 
     this.#events = [
       ...this.#events.slice(0, index),

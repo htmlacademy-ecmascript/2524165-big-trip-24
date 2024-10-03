@@ -27,10 +27,13 @@ function createListItemPointTemplate (event) {
 
   const favoriteButtonActive = isFavorite ? 'event__favorite-btn--active' : '';
   const typeIconName = type.toLowerCase();
-  const formattedHoursDateFrom = formatDate(dateFrom, DateFormats.HOURS);
-  const formattedHoursDateTo = formatDate(dateTo, DateFormats.HOURS);
-  const formattedMonthDateFrom = formatDate(dateFrom, DateFormats.MONTHDAY);
-  const formattedDateFromTo = getTimeFromTo(dateFrom, dateTo);
+  const formattedHoursDateFrom = dateFrom ? formatDate(dateFrom, DateFormats.HOURS) : '';
+  const formattedHoursDateTo = dateTo ? formatDate(dateTo, DateFormats.HOURS) : '';
+  const formattedMonthDateFrom = dateFrom ? formatDate(dateFrom, DateFormats.MONTHDAY) : '';
+  let formattedDateFromTo = '';
+  if (dateFrom && dateTo) {
+    formattedDateFromTo = getTimeFromTo(dateFrom, dateTo);
+  }
 
   return `<li class="trip-events__item">
               <div class="event">

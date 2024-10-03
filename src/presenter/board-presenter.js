@@ -1,13 +1,16 @@
 import { render, remove } from '../framework/render.js';
 import { sortByDay, sortByPrice, sortByTime } from '../utilities/event.js';
-import { SortTypes, ActionTypes, UpdateTypes } from '../constants.js';
+import { SortTypes, ActionTypes, UpdateTypes, FilterTypes } from '../constants.js';
+import { Filters } from '../utilities/filter.js';
 import SortView from '../view/sort-view.js';
 import EventListView from '../view/event-list-view.js';
 import EventListEmptyView from '../view/event-list-empty-view.js';
 import EventPresenter from './event-presenter.js';
+import NewEventPresenter from './new-event-presenter.js';
 
 export default class BoardPresenter {
   #tripModel = null;
+  #filterModel = null;
   #offersModel = null;
   #destinationsModel = null;
   #offers = [];
@@ -17,23 +20,24 @@ export default class BoardPresenter {
   #sortListComponent = null;
   #emptyListComponent = new EventListEmptyView();
   #eventPresenters = new Map();
+  #newEventPresenter = null;
   #currentSortType = SortTypes.DAY;
 
-  #addEventFormCloseHandler = null;
 
-  constructor(eventsContainer, tripModel, offersModel, destinationsModel, onAddEventFormClose) {
+  constructor(eventsContainer, tripModel, filterModel, offersModel, destinationsModel) {
     this.#eventsContainer = eventsContainer;
     this.#tripModel = tripModel;
+    this.#filterModel = filterModel;
     this.#offersModel = offersModel;
     this.#destinationsModel = destinationsModel;
 
-    this.#addEventFormCloseHandler = onAddEventFormClose;
+    this.#newEventPresenter = new NewEventPresenter(this.#eventListComponent.element, this.#handleViewAction, this.#handleFormTypeChange, this.#handleFormDestinationChange);
 
     this.#tripModel.addObserver(this.#handleModelChange);
+    this.#filterModel.addObserver(this.#handleModelChange);
   }
 
   init() {
-    //this.#filters = this.#tripModel.filters;
     this.#offers = this.#offersModel.offers;
     this.#destinations = this.#destinationsModel.destinations;
     this.#getOffersForEventsByType(this.events, this.#offers);
@@ -43,19 +47,25 @@ export default class BoardPresenter {
   }
 
   get events () {
+    const filterType = this.#filterModel.filter;
+    const events = this.#tripModel.events;
+    const filteredTasks = Filters[filterType](events);
+
     switch (this.#currentSortType) {
       case SortTypes.DAY:
-        return [...this.#tripModel.events].sort(sortByDay);
+        return filteredTasks.sort(sortByDay);
       case SortTypes.PRICE:
-        return [...this.#tripModel.events].sort(sortByPrice);
+        return filteredTasks.sort(sortByPrice);
       case SortTypes.TIME:
-        return [...this.#tripModel.events].sort(sortByTime);
+        return filteredTasks.sort(sortByTime);
     }
-    return this.#tripModel.events;
+    return filteredTasks;
   }
 
   createEvent () {
-    
+    this.#currentSortType = SortTypes.DAY;
+    this.#filterModel.setFilter(UpdateTypes.MAJOR, FilterTypes.EVERYTHING);
+    this.#newEventPresenter.init();
   }
 
   #getOffersForEventsByType (eventsArr, offersArr) {
@@ -170,8 +180,5 @@ export default class BoardPresenter {
     return destination;
   };
 
-  #handleAddEventFormClose = () => {
-    this.#addEventFormCloseHandler();
-  };
 
 }

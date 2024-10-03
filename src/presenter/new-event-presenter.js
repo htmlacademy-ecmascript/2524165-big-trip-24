@@ -1,15 +1,12 @@
-import { render, replace, remove } from '../framework/render.js';
+import { RenderPosition, render, remove } from '../framework/render.js';
 import { isEscKey } from '../utilities/util.js';
-import FormEditPointView from '../view/form-edit-event-view.js';
-import EventPointView from '../view/event-view.js';
 import { ActionTypes, UpdateTypes } from '../constants.js';
+import FormNewEventView from '../view/form-new-event-view.js';
 
 export default class NewEventPresenter {
-  #event = null;
   #eventContainer = null;
   #newEventComponent = null;
 
-  #mode = Mode.DEFAULT;
   #dataChangeHandler = null;
   #formTypeChangeHandler = null;
   #formDestinationChangeHandler = null;
@@ -22,27 +19,23 @@ export default class NewEventPresenter {
   }
 
   init () {
-    //this.#event = event;
+    const prevNewEventComponent = this.#newEventComponent;
 
-    // const prevEventComponent = this.#eventComponent;
-    // const prevEventEditComponent = this.#eventEditComponent;
+    if (prevNewEventComponent === null) {
+      this.#newEventComponent = new FormNewEventView(this.#onFormSubmit, this.#onFormTypeChange, this.#onFormDestinationChange, this.#onCancelButtonClick);
+      render(this.#newEventComponent, this.#eventContainer, RenderPosition.AFTERBEGIN);
+      document.addEventListener('keydown', this.#escKeyDownHandler);
+      return;
+    }
 
-    this.#newEventComponent = new NewPointView(this.#event, this.#onFormSubmit, this.#onCloseButtonClick, this.#onFormTypeChange, this.#onFormDestinationChange, this.#onDeleteButtonClick);
+    document.removeEventListener('keydown', this.#escKeyDownHandler);
+    this.destroy();
 
-    //if (prevEventComponent === null || prevEventEditComponent === null) {
-      render(this.#newEventComponent, this.#eventContainer);
-      //return;
-    //}
-
-
-    // remove(prevEventComponent);
-    // remove(prevEventEditComponent);
-
-    //}
   }
 
   destroy () {
     remove(this.#newEventComponent);
+    this.#newEventComponent = null;
   }
 
   #escKeyDownHandler = (evt) => {
@@ -70,11 +63,8 @@ export default class NewEventPresenter {
   };
 
   #onCancelButtonClick = () => {
-    
-  };
-
-  #onCloseButtonClick = () => {
     document.removeEventListener('keydown', this.#escKeyDownHandler);
+    this.destroy();
   };
 
 }

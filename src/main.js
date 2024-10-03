@@ -3,31 +3,26 @@ import FilterPresenter from './presenter/filter-presenter.js';
 import TripModel from './model/trip-model.js';
 import OffersModel from './model/offers-model.js';
 import DestinationsModel from './model/destinations-model.js';
-import FiltersModel from './model/filters-model.js';
-import AddEventButtonView from './view/add-event-button-view.js';
+import FilterModel from './model/filter-model.js';
+import NewEventButtonView from './view/new-event-button-view.js';
 import { render } from './framework/render.js';
 
 const filterContainerElement = document.querySelector('.trip-controls__filters');
 const tripEventsContainerElement = document.querySelector('.trip-events');
-const addEventButtonContainerElement = document.querySelector('.trip-main');
-const filtersModel = new FiltersModel();
+const newEventButtonContainerElement = document.querySelector('.trip-main');
+const filterModel = new FilterModel();
 const tripModel = new TripModel();
 const offersModel = new OffersModel();
 const destinationsModel = new DestinationsModel();
-const addEventButtonComponent = new AddEventButtonView(handleAddEventButtonClick);
+const newEventButtonComponent = new NewEventButtonView(handleNewEventButtonClick);
 
-const filterPresenter = new FilterPresenter(filterContainerElement, filtersModel);
-const boardPresenter = new BoardPresenter(tripEventsContainerElement, tripModel, offersModel, destinationsModel, handleAddEventFormClose);
+const filterPresenter = new FilterPresenter(filterContainerElement, filterModel, tripModel);
+const boardPresenter = new BoardPresenter(tripEventsContainerElement, tripModel, filterModel, offersModel, destinationsModel);
 filterPresenter.init();
 boardPresenter.init();
 
-render(addEventButtonComponent, addEventButtonContainerElement);
+render(newEventButtonComponent, newEventButtonContainerElement);
 
-function handleAddEventFormClose() {
-  addEventButtonComponent.element.disabled = false;
-}
-
-function handleAddEventButtonClick() {
+function handleNewEventButtonClick() {
   boardPresenter.createEvent();
-  addEventButtonComponent.element.disabled = true;
 }
