@@ -1,4 +1,4 @@
-import { render, remove } from '../framework/render.js';
+import { render, remove, RenderPosition } from '../framework/render.js';
 import { sortByDay, sortByPrice, sortByTime } from '../utilities/event.js';
 import { SortTypes, ActionTypes, UpdateTypes, FilterTypes } from '../constants.js';
 import { Filters } from '../utilities/filter.js';
@@ -18,11 +18,12 @@ export default class BoardPresenter {
   #eventsContainer = null;
   #eventListComponent = new EventListView();
   #sortListComponent = null;
-  #emptyListComponent = new EventListEmptyView();
+  #emptyListComponent = null;
   #eventPresenters = new Map();
   #newEventPresenter = null;
   #currentSortType = SortTypes.DAY;
 
+  #isNewEventFormVisible = false;
 
   constructor(eventsContainer, tripModel, filterModel, offersModel, destinationsModel) {
     this.#eventsContainer = eventsContainer;
@@ -31,7 +32,7 @@ export default class BoardPresenter {
     this.#offersModel = offersModel;
     this.#destinationsModel = destinationsModel;
 
-    this.#newEventPresenter = new NewEventPresenter(this.#eventListComponent.element, this.#handleViewAction, this.#handleFormTypeChange, this.#handleFormDestinationChange);
+    this.#newEventPresenter = new NewEventPresenter(this.#eventListComponent.element, this.#handleViewAction, this.#handleFormTypeChange, this.#handleFormDestinationChange, this.#resetSortAndFilterTypes);
 
     this.#tripModel.addObserver(this.#handleModelChange);
     this.#filterModel.addObserver(this.#handleModelChange);
@@ -63,10 +64,22 @@ export default class BoardPresenter {
   }
 
   createEvent () {
-    this.#currentSortType = SortTypes.DAY;
-    this.#filterModel.setFilter(UpdateTypes.MAJOR, FilterTypes.EVERYTHING);
+    if (!this.#isNewEventFormVisible) {
+      this.#currentSortType = SortTypes.DAY;
+      this.#filterModel.setFilter(UpdateTypes.MAJOR, FilterTypes.EVERYTHING);
+
+      remove(this.#emptyListComponent);
+    } else {
+      this.#renderEmptyEventsList();
+    }
+    this.#isNewEventFormVisible = !this.#isNewEventFormVisible;
     this.#newEventPresenter.init();
   }
+
+  #resetSortAndFilterTypes = () => {
+    this.#currentSortType = SortTypes.DAY;
+    this.#filterModel.setFilter(UpdateTypes.MAJOR, FilterTypes.EVERYTHING);
+  };
 
   #getOffersForEventsByType (eventsArr, offersArr) {
     eventsArr.forEach((event) => {
@@ -83,17 +96,18 @@ export default class BoardPresenter {
   }
 
   #renderEmptyEventsList () {
-    render(this.#emptyListComponent, this.#eventsContainer);
+    if (this.events.length === 0) {
+      this.#emptyListComponent = new EventListEmptyView(this.#filterModel.filter);
+      render(this.#emptyListComponent, this.#eventsContainer);
+    }
   }
 
   #renderSortView () {
     this.#sortListComponent = new SortView(this.#handleSortChange);
-    render(this.#sortListComponent, this.#eventsContainer);
+    render(this.#sortListComponent, this.#eventsContainer, RenderPosition.AFTERBEGIN);
   }
 
   #renderEvents () {
-    render(this.#eventListComponent, this.#eventsContainer);
-
     const eventsCount = this.events.length;
     for (let i = 0; i < eventsCount; i++) {
       const eventPresenter = new EventPresenter(this.#eventListComponent.element, this.#handleViewAction, this.#handleModeChange, this.#handleFormTypeChange, this.#handleFormDestinationChange);
@@ -108,10 +122,8 @@ export default class BoardPresenter {
   }
 
   #renderBoard () {
-    if (this.events.length === 0) {
-      this.#renderEmptyEventsList();
-      return;
-    }
+    render(this.#eventListComponent, this.#eventsContainer);
+    this.#renderEmptyEventsList();
     this.#renderSortView();
     this.#renderEvents();
   }
@@ -128,6 +140,10 @@ export default class BoardPresenter {
   }
 
   #handleModeChange = () => {
+    if (this.#isNewEventFormVisible) {
+      this.#newEventPresenter.destroy();
+      this.#isNewEventFormVisible = !this.#isNewEventFormVisible;
+    }
     this.#eventPresenters.forEach((presenter) => presenter.resetView());
   };
 

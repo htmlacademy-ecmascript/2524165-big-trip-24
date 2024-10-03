@@ -94,12 +94,13 @@ function createTimeFieldGroup(dateFrom, dateTo) {
 }
 
 function createPriceFieldGroup(basePrice) {
+  const stringBasePrice = basePrice.toString();
   return `<div class="event__field-group  event__field-group--price">
             <label class="event__label" for="event-price-1">
               <span class="visually-hidden">Price</span>
               &euro;
             </label>
-            <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${he.encode(toString(basePrice))}">
+            <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${he.encode(stringBasePrice)}">
           </div>`;
 }
 
