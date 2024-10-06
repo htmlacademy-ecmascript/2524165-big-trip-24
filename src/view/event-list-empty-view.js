@@ -14,7 +14,7 @@ function createEventListEmptyTemplate (filterType) {
       emptyListMessage = 'There are no past events now';
       break;
     case FilterTypes.PRESENT:
-      emptyListMessage = 'There are no future events now';
+      emptyListMessage = 'There are no present events now';
       break;
     default:
       break;

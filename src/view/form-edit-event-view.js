@@ -1,5 +1,5 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-import { TYPES, DESTINATION_NAMES } from '../constants.js';
+import { TYPES } from '../constants.js';
 import { formatDate } from '../utilities/event.js';
 import { DateFormats } from '../constants.js';
 import dayjs from 'dayjs';
@@ -8,15 +8,16 @@ import he from 'he';
 
 import 'flatpickr/dist/flatpickr.min.css';
 
-function createFormEditEventTemplate (event) {
-  const { basePrice, dateFrom, dateTo, destination: { name: destinationName, description, pictures }, type, offers } = event;
+function createFormEditEventTemplate (event, eventTypeOffers, eventDestination, destinations) {
+  const { basePrice, dateFrom, dateTo, offers: eventOffers, type } = event;
+  const { name, description, pictures } = eventDestination;
 
   return `<li class="trip-events__item">
             <form class="event event--edit" action="#" method="post">
                 <header class="event__header">
 
                   ${createEventTypeListWrapper(type)}
-                  ${createDestinationFieldGroup(type, destinationName)}
+                  ${createDestinationFieldGroup(type, name, destinations)}
                   ${createTimeFieldGroup(dateFrom, dateTo)}
                   ${createPriceFieldGroup(basePrice)}
 
@@ -27,7 +28,7 @@ function createFormEditEventTemplate (event) {
                   </button>
                 </header>
                 <section class="event__details">
-                  ${createOffersSection(offers)}
+                  ${createOffersSection(eventTypeOffers, eventOffers)}
                   ${createDestinationSection(description, pictures)}
                 </section>
             </form>
@@ -62,10 +63,10 @@ function createEventTypeListWrapper (eventType) {
           </div>`;
 }
 
-function createDestinationFieldGroup(eventType, destinationName) {
+function createDestinationFieldGroup(eventType, name, destinations) {
   const destinationOptionsArray = [];
-  for (let i = 0; i < DESTINATION_NAMES.length; i++) {
-    const destinationOption = `<option value="${DESTINATION_NAMES[i]}"></option>`;
+  for (let i = 0; i < destinations.length; i++) {
+    const destinationOption = `<option value="${destinations[i].name}"></option>`;
     destinationOptionsArray.push(destinationOption);
   }
   const destinationOptions = destinationOptionsArray.join('\n');
@@ -74,7 +75,7 @@ function createDestinationFieldGroup(eventType, destinationName) {
             <label class="event__label  event__type-output" for="event-destination-1">
                 ${eventType}
             </label>
-            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${he.encode(destinationName ? destinationName : '')}" list="destination-list-1">
+            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${he.encode(name ? name : '')}" list="destination-list-1">
             <datalist id="destination-list-1">
               ${destinationOptions}
             </datalist>
@@ -104,18 +105,19 @@ function createPriceFieldGroup(basePrice) {
           </div>`;
 }
 
-function createOffersSection(offers) {
-  if (offers.length < 1) {
+function createOffersSection(eventTypeOffers, eventOffers) {
+  if (eventTypeOffers.length < 1) {
     return '';
   }
   const offerSelectorsArray = [];
-  for (let i = 0; i < offers.length; i++) {
-    const offerTitle = offers[i].title;
-    const offerPrice = offers[i].price;
+  for (let i = 0; i < eventTypeOffers.length; i++) {
+    const offerTitle = eventTypeOffers[i].title;
+    const offerPrice = eventTypeOffers[i].price;
     const offerName = offerTitle.replace(/\s+/g, '').toLowerCase();
-    const offerIsChecked = offers[i].isChecked ? 'checked' : '';
+    const offerIsChecked = eventOffers.has(eventTypeOffers[i].id) ? 'checked' : '';
+
     const offerSelector = `<div class="event__offer-selector">
-                            <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offerName}" type="checkbox" name="event-offer-${offerName}" ${offerIsChecked} data-id="${i}">
+                            <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offerName}" type="checkbox" name="event-offer-${offerName}" ${offerIsChecked} data-id="${eventTypeOffers[i].id}">
                             <label class="event__offer-label" for="event-offer-${offerName}">
                               <span class="event__offer-title">${offerTitle}</span>
                               &plus;&euro;&nbsp;
@@ -159,31 +161,37 @@ function createDestinationSection(description, pictures) {
 
 export default class FormEditEventView extends AbstractStatefulView {
   #event = null;
+  #offers = null;
+  #destinations = null;
+  #eventTypeOffers = null;
+  #eventDestination = null;
+
   #handleFormSubmit = null;
-  #handleFormTypeChange = null;
-  #handleFormDestinationChange = null;
   #handleCloseButtonClick = null;
   #handleDeleteButtonClick = null;
 
   #datepickerFrom = null;
   #datepickerTo = null;
 
-  constructor (event, onFormSubmit, onCloseButtonClick, onFormTypeChange, onFormDestinationChange, onDeleteButtonClick) {
+  constructor (event, onFormSubmit, onCloseButtonClick, onDeleteButtonClick, offers, destinations) {
     super();
     this.#event = event;
+    this.#offers = offers;
+    this.#destinations = destinations;
     this._setState(FormEditEventView.parseEventToState(this.#event));
 
     this.#handleFormSubmit = onFormSubmit;
     this.#handleCloseButtonClick = onCloseButtonClick;
-    this.#handleFormTypeChange = onFormTypeChange;
-    this.#handleFormDestinationChange = onFormDestinationChange;
     this.#handleDeleteButtonClick = onDeleteButtonClick;
+
+    this.#getOffers(this._state.type);
+    this.#getDestination(this._state.destination);
 
     this._restoreHandlers();
   }
 
   get template() {
-    return createFormEditEventTemplate(this._state);
+    return createFormEditEventTemplate(this._state, this.#eventTypeOffers, this.#eventDestination, this.#destinations);
   }
 
   removeElement() {
@@ -201,21 +209,12 @@ export default class FormEditEventView extends AbstractStatefulView {
   }
 
   static parseEventToState (event) {
-    event.offers.forEach((offer, index) => {
-      offer.id = index;
-      offer.isChecked = offer.isChecked || false;
-    });
-    if (event.dateFrom instanceof dayjs) {
-      const dateFrom = event.dateFrom.toDate();
-      const dateTo = event.dateTo.toDate();
-      return {...event, dateFrom: dateFrom, dateTo: dateTo};
-    }
-    return event;
+    const state = {...event};
+    return state;
   }
 
   static parseStateToEvent (state) {
     const event = {...state};
-
     return event;
   }
 
@@ -234,6 +233,16 @@ export default class FormEditEventView extends AbstractStatefulView {
 
   reset (event) {
     this.updateElement(FormEditEventView.parseEventToState(event));
+  }
+
+  #getOffers (type) {
+    const offersByType = this.#offers.find((offer) => offer.type === type);
+    this.#eventTypeOffers = offersByType.offers;
+  }
+
+  #getDestination (destinationID) {
+    const destination = this.#destinations.find((element) => element.id === destinationID);
+    this.#eventDestination = destination;
   }
 
   #setDatepicker() {
@@ -272,25 +281,28 @@ export default class FormEditEventView extends AbstractStatefulView {
   #formChangeHandler = (evt) => {
     evt.preventDefault();
     if (evt.target.matches('.event__type-input')) {
-      const type = evt.target.value.at(0).toUpperCase() + evt.target.value.slice(1);
-      const offers = this.#handleFormTypeChange(type);
-      this.updateElement({...this._state, type: type, offers: offers});
+      const type = evt.target.value;
+      this.#getOffers(type);
+      this.updateElement({...this._state, type: type, offers: new Set()});
     }
     if (evt.target.matches('.event__input--destination')) {
-      const destinationName = evt.target.value;
-      const destination = this.#handleFormDestinationChange(destinationName);
-      this.updateElement({...this._state, destination: destination});
+      const newDestinationName = evt.target.value;
+      const newDestinationId = this.#destinations.find((destination) => destination.name === newDestinationName).id;
+      this.#getDestination(newDestinationId);
+      this.updateElement({...this._state, destination: this.#eventDestination.id});
     }
   };
 
   #offerClickHandler = (evt) => {
     if (evt.target.matches('.event__offer-checkbox')) {
       const offers = this._state.offers;
-      const targetID = parseInt(evt.target.dataset.id, 10);
+      const targetID = evt.target.dataset.id;
 
-      const selectedOfferIndex = offers.findIndex((offer) => offer.id === targetID);
-
-      this._state.offers[selectedOfferIndex].isChecked = !this._state.offers[selectedOfferIndex].isChecked;
+      if (offers.has(targetID)) {
+        offers.delete(targetID);
+      } else {
+        offers.add(targetID);
+      }
 
       this.updateElement({...this._state});
     }

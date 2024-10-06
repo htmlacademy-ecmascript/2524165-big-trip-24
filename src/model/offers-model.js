@@ -1,7 +1,20 @@
-import { getOffers } from '../mock/offers.js';
+export default class OffersModel{
+  #offers = [];
+  #tripApiService = null;
 
-export default class OffersModel {
-  #offers = getOffers();
+  constructor (tripApiService) {
+    this.#tripApiService = tripApiService;
+  }
+
+  async init () {
+    try {
+      const offers = await this.#tripApiService.offers;
+      this.#offers = offers;
+    } catch (err) {
+      this.#offers = [];
+    }
+
+  }
 
   get offers() {
     return this.#offers;

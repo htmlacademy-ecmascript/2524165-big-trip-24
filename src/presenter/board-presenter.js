@@ -7,23 +7,24 @@ import EventListView from '../view/event-list-view.js';
 import EventListEmptyView from '../view/event-list-empty-view.js';
 import EventPresenter from './event-presenter.js';
 import NewEventPresenter from './new-event-presenter.js';
+import LoadingView from '../view/loading-view.js';
 
 export default class BoardPresenter {
   #tripModel = null;
   #filterModel = null;
   #offersModel = null;
   #destinationsModel = null;
-  #offers = [];
-  #destinations = [];
   #eventsContainer = null;
   #eventListComponent = new EventListView();
   #sortListComponent = null;
   #emptyListComponent = null;
+  #loadingComponent = new LoadingView();
   #eventPresenters = new Map();
   #newEventPresenter = null;
   #currentSortType = SortTypes.DAY;
 
   #isNewEventFormVisible = false;
+  #isLoading = true;
 
   constructor(eventsContainer, tripModel, filterModel, offersModel, destinationsModel) {
     this.#eventsContainer = eventsContainer;
@@ -32,18 +33,11 @@ export default class BoardPresenter {
     this.#offersModel = offersModel;
     this.#destinationsModel = destinationsModel;
 
-    this.#newEventPresenter = new NewEventPresenter(this.#eventListComponent.element, this.#handleViewAction, this.#handleFormTypeChange, this.#handleFormDestinationChange, this.#resetSortAndFilterTypes);
-
     this.#tripModel.addObserver(this.#handleModelChange);
     this.#filterModel.addObserver(this.#handleModelChange);
   }
 
   init() {
-    this.#offers = this.#offersModel.offers;
-    this.#destinations = this.#destinationsModel.destinations;
-    this.#getOffersForEventsByType(this.events, this.#offers);
-    this.#getDestinationsForEventsByType(this.events, this.#destinations);
-
     this.#renderBoard();
   }
 
@@ -63,10 +57,20 @@ export default class BoardPresenter {
     return filteredTasks;
   }
 
+  get offers () {
+    return this.#offersModel.offers;
+  }
+
+  get destinations () {
+    return this.#destinationsModel.destinations;
+  }
+
   createEvent () {
     if (!this.#isNewEventFormVisible) {
       this.#currentSortType = SortTypes.DAY;
       this.#filterModel.setFilter(UpdateTypes.MAJOR, FilterTypes.EVERYTHING);
+
+      this.#newEventPresenter = new NewEventPresenter(this.#eventListComponent.element, this.#handleViewAction, this.offers, this.destinations);
 
       remove(this.#emptyListComponent);
     } else {
@@ -81,20 +85,6 @@ export default class BoardPresenter {
     this.#filterModel.setFilter(UpdateTypes.MAJOR, FilterTypes.EVERYTHING);
   };
 
-  #getOffersForEventsByType (eventsArr, offersArr) {
-    eventsArr.forEach((event) => {
-      const offer = offersArr.find((element) => element.type === event.type);
-      event.offers = offer.offers;
-    });
-  }
-
-  #getDestinationsForEventsByType (eventsArr, destinationsArr) {
-    eventsArr.forEach((event) => {
-      const destination = destinationsArr.find((element) => element.name === event.destination);
-      event.destination = destination;
-    });
-  }
-
   #renderEmptyEventsList () {
     if (this.events.length === 0) {
       this.#emptyListComponent = new EventListEmptyView(this.#filterModel.filter);
@@ -103,33 +93,38 @@ export default class BoardPresenter {
   }
 
   #renderSortView () {
-    this.#sortListComponent = new SortView(this.#handleSortChange);
+    this.#sortListComponent = new SortView(this.#handleSortChange, this.#currentSortType);
     render(this.#sortListComponent, this.#eventsContainer, RenderPosition.AFTERBEGIN);
   }
 
-  #renderEvents () {
-    const eventsCount = this.events.length;
+  #renderLoading () {
+    render(this.#loadingComponent, this.#eventsContainer);
+  }
+
+  #renderBoard () {
+    render(this.#eventListComponent, this.#eventsContainer);
+
+    if (this.#isLoading) {
+      this.#renderLoading();
+      return;
+    }
+
+    const events = this.events;
+    const eventsCount = events.length;
+
+    this.#renderEmptyEventsList();
+    this.#renderSortView();
+
     for (let i = 0; i < eventsCount; i++) {
-      const eventPresenter = new EventPresenter(this.#eventListComponent.element, this.#handleViewAction, this.#handleModeChange, this.#handleFormTypeChange, this.#handleFormDestinationChange);
+      const eventPresenter = new EventPresenter(this.#eventListComponent.element, this.#handleViewAction, this.#handleModeChange, this.offers, this.destinations);
       eventPresenter.init(this.events[i]);
       this.#eventPresenters.set(this.events[i].id, eventPresenter);
     }
   }
 
-  #clearEvents () {
+  #clearBoard (resetSortType = false) {
     this.#eventPresenters.forEach((presenter) => presenter.destroy());
     this.#eventPresenters.clear();
-  }
-
-  #renderBoard () {
-    render(this.#eventListComponent, this.#eventsContainer);
-    this.#renderEmptyEventsList();
-    this.#renderSortView();
-    this.#renderEvents();
-  }
-
-  #clearBoard (resetSortType = false) {
-    this.#clearEvents();
 
     remove(this.#sortListComponent);
     remove(this.#emptyListComponent);
@@ -152,8 +147,8 @@ export default class BoardPresenter {
       return;
     }
     this.#currentSortType = sortType;
-    this.#clearEvents();
-    this.#renderEvents();
+    this.#clearBoard();
+    this.#renderBoard();
   };
 
   #handleViewAction = (actionType, updateType, update) => {
@@ -183,18 +178,12 @@ export default class BoardPresenter {
         this.#clearBoard();
         this.#renderBoard();
         break;
+      case UpdateTypes.INIT:
+        this.#isLoading = false;
+        remove(this.#loadingComponent);
+        this.#renderBoard();
+        break;
     }
   };
-
-  #handleFormTypeChange = (type) => {
-    const offers = this.#offers.find((element) => element.type === type);
-    return offers.offers;
-  };
-
-  #handleFormDestinationChange = (destinationName) => {
-    const destination = this.#destinations.find((element) => element.name === destinationName);
-    return destination;
-  };
-
 
 }
