@@ -1,5 +1,5 @@
-import { render, replace, remove } from '../framework/render';
 import FilterView from '../view/filter-view';
+import { render, replace, remove } from '../framework/render';
 import { Filters } from '../utilities/filter';
 import { UpdateTypes } from '../constants';
 
@@ -20,7 +20,6 @@ export default class FilterPresenter {
 
   get filters () {
     const events = this.#tripModel.events;
-
     return Object.entries(Filters).map(([filterType, filterFunc]) => ({
       type: filterType,
       count: filterFunc(events).length,

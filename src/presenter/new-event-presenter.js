@@ -5,25 +5,25 @@ import FormNewEventView from '../view/form-new-event-view.js';
 import { nanoid } from 'nanoid';
 
 export default class NewEventPresenter {
+  #offers = null;
+  #destinations = null;
   #eventContainer = null;
   #newEventComponent = null;
 
   #dataChangeHandler = null;
-  #formTypeChangeHandler = null;
-  #formDestinationChangeHandler = null;
 
-  constructor(eventContainer, onDataChange, onFormTypeChange, onFormDestinationChange) {
+  constructor(eventContainer, onDataChange, offers, destinations) {
     this.#eventContainer = eventContainer;
     this.#dataChangeHandler = onDataChange;
-    this.#formTypeChangeHandler = onFormTypeChange;
-    this.#formDestinationChangeHandler = onFormDestinationChange;
+    this.#offers = offers;
+    this.#destinations = destinations;
   }
 
   init () {
     const prevNewEventComponent = this.#newEventComponent;
 
     if (prevNewEventComponent === null) {
-      this.#newEventComponent = new FormNewEventView(this.#onFormSubmit, this.#onFormTypeChange, this.#onFormDestinationChange, this.#onCancelButtonClick);
+      this.#newEventComponent = new FormNewEventView(this.#onFormSubmit, this.#onCancelButtonClick, this.#offers, this.#destinations);
       render(this.#newEventComponent, this.#eventContainer, RenderPosition.AFTERBEGIN);
 
       document.addEventListener('keydown', this.#escKeyDownHandler);
@@ -52,16 +52,6 @@ export default class NewEventPresenter {
     this.#dataChangeHandler(ActionTypes.ADD_TRIP, UpdateTypes.MINOR, {id: nanoid(), ...updatedEvent});
     document.removeEventListener('keydown', this.#escKeyDownHandler);
     this.destroy();
-  };
-
-  #onFormTypeChange = (type) => {
-    const offers = this.#formTypeChangeHandler(type);
-    return offers;
-  };
-
-  #onFormDestinationChange = (destinationName) => {
-    const destination = this.#formDestinationChangeHandler(destinationName);
-    return destination ? destination : '';
   };
 
   #onCancelButtonClick = () => {

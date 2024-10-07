@@ -2,28 +2,31 @@ import AbstractView from '../framework/view/abstract-view';
 import { formatDate, getTimeFromTo } from '../utilities/event';
 import { DateFormats } from '../constants';
 
-function createOffersList(offers) {
+function createOffersList(offersList, eventOffers) {
   const offersArray = [];
-  for (let i = 0; i < offers.length; i++) {
-    const offer = `<li class="event__offer">
-                      <span class="event__offer-title">${offers[i].title}</span>
+  for (let i = 0; i < offersList.length; i++) {
+    if (!eventOffers.has(offersList[i].id)) {
+      continue;
+    }
+    const selectedOffer = `<li class="event__offer">
+                      <span class="event__offer-title">${offersList[i].title}</span>
                       &plus;&euro;&nbsp;
-                      <span class="event__offer-price">${offers[i].price}</span>
+                      <span class="event__offer-price">${offersList[i].price}</span>
                     </li>`;
-    offersArray.push(offer);
+    offersArray.push(selectedOffer);
   }
-  const offersList = offersArray.join('\n');
+  const selectedOffers = offersArray.join('\n');
   return `<h4 class="visually-hidden">Offers:</h4>
             <ul class="event__selected-offers">
-              ${offersList}
+              ${selectedOffers}
             </ul>`;
 }
 
-function createListItemPointTemplate (event) {
+function createListItemPointTemplate (event, offersList, destinationName) {
   if (event === null) {
     return '<p class="trip-events__msg">Click New Event to create your first point</p>';
   }
-  const { basePrice, dateFrom, dateTo, destination: { name: destinationName }, isFavorite, type, offers } = event;
+  const { basePrice, dateFrom, dateTo, isFavorite, offers: eventOffers, type } = event;
 
   const favoriteButtonActive = isFavorite ? 'event__favorite-btn--active' : '';
   const typeIconName = type.toLowerCase();
@@ -53,7 +56,9 @@ function createListItemPointTemplate (event) {
                 <p class="event__price">
                   &euro;&nbsp;<span class="event__price-value">${basePrice}</span>
                 </p>
-                ${createOffersList(offers)}
+
+                ${createOffersList(offersList, eventOffers)}
+
                 <button class="event__favorite-btn ${favoriteButtonActive}" type="button">
                   <span class="visually-hidden">Add to favorite</span>
                   <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
@@ -69,12 +74,21 @@ function createListItemPointTemplate (event) {
 
 export default class EventView extends AbstractView {
   #event = null;
+  #offers = null;
+  #destinations = null;
+  #eventOffers = null;
+  #eventDestination = null;
   #handleEditButtonClick = null;
   #handleFavoriteButtonClick = null;
 
-  constructor (event, onEditButtonClick, onFavoriteButtonClick) {
+  constructor (event, onEditButtonClick, onFavoriteButtonClick, offers, destinations) {
     super();
     this.#event = event;
+    this.#offers = offers;
+    this.#destinations = destinations;
+    this.#getOffers(this.#event.type);
+    this.#getDestination(this.#event.destination);
+
     this.#handleEditButtonClick = onEditButtonClick;
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editButtonClickHandler);
     this.#handleFavoriteButtonClick = onFavoriteButtonClick;
@@ -82,7 +96,17 @@ export default class EventView extends AbstractView {
   }
 
   get template() {
-    return createListItemPointTemplate(this.#event);
+    return createListItemPointTemplate(this.#event, this.#eventOffers, this.#eventDestination.name);
+  }
+
+  #getOffers (type) {
+    const offersByType = this.#offers.find((offer) => offer.type === type);
+    this.#eventOffers = offersByType.offers;
+  }
+
+  #getDestination (destinationID) {
+    const destination = this.#destinations.find((element) => element.id === destinationID);
+    this.#eventDestination = destination;
   }
 
   #editButtonClickHandler = () => {

@@ -11,6 +11,8 @@ const Mode = {
 
 export default class EventPresenter {
   #event = null;
+  #offers = null;
+  #destinations = null;
   #eventContainer = null;
   #eventComponent = null;
   #eventEditComponent = null;
@@ -18,15 +20,13 @@ export default class EventPresenter {
   #mode = Mode.DEFAULT;
   #dataChangeHandler = null;
   #modeChangeHandler = null;
-  #formTypeChangeHandler = null;
-  #formDestinationChangeHandler = null;
 
-  constructor(eventContainer, onDataChange, onModeChange, onFormTypeChange, onFormDestinationChange) {
+  constructor(eventContainer, onDataChange, onModeChange, offers, destinations) {
     this.#eventContainer = eventContainer;
     this.#dataChangeHandler = onDataChange;
     this.#modeChangeHandler = onModeChange;
-    this.#formTypeChangeHandler = onFormTypeChange;
-    this.#formDestinationChangeHandler = onFormDestinationChange;
+    this.#offers = offers;
+    this.#destinations = destinations;
   }
 
   init (event) {
@@ -35,8 +35,8 @@ export default class EventPresenter {
     const prevEventComponent = this.#eventComponent;
     const prevEventEditComponent = this.#eventEditComponent;
 
-    this.#eventComponent = new EventPointView(this.#event, this.#onEditButtonClick, this.#onFavoriteButtonClick);
-    this.#eventEditComponent = new FormEditPointView(this.#event, this.#onFormSubmit, this.#onCloseButtonClick, this.#onFormTypeChange, this.#onFormDestinationChange, this.#onDeleteButtonClick);
+    this.#eventComponent = new EventPointView(this.#event, this.#onEditButtonClick, this.#onFavoriteButtonClick, this.#offers, this.#destinations);
+    this.#eventEditComponent = new FormEditPointView(this.#event, this.#onFormSubmit, this.#onCloseButtonClick, this.#onDeleteButtonClick, this.#offers, this.#destinations);
 
     if (prevEventComponent === null || prevEventEditComponent === null) {
       render(this.#eventComponent, this.#eventContainer);
@@ -90,16 +90,6 @@ export default class EventPresenter {
     this.#dataChangeHandler(ActionTypes.UPDATE_TRIP, UpdateTypes.MINOR, updatedEvent);
     this.#replaceFormToEvent();
     document.removeEventListener('keydown', this.#escKeyDownHandler);
-  };
-
-  #onFormTypeChange = (type) => {
-    const offers = this.#formTypeChangeHandler(type);
-    return offers;
-  };
-
-  #onFormDestinationChange = (destinationName) => {
-    const destination = this.#formDestinationChangeHandler(destinationName);
-    return destination ? destination : '';
   };
 
   #onDeleteButtonClick = () => {
