@@ -3,6 +3,8 @@ import ApiService from './framework/api-service';
 const Methods = {
   GET: 'GET',
   PUT: 'PUT',
+  POST: 'POST',
+  DELETE: 'DELETE',
 };
 
 const DataTypes = {
@@ -40,6 +42,28 @@ export default class TripApiService extends ApiService {
     const parsedResponse = await ApiService.parseResponse(response);
 
     return parsedResponse;
+  }
+
+  async addEvent (event) {
+    const response = await this._load({
+      url: `${DataTypes.EVENTS}`,
+      method: Methods.POST,
+      body: JSON.stringify(this.#adaptEventForServer(event)),
+      headers: new Headers({'Content-Type': 'application/json'}),
+    });
+
+    const parsedResponse = await ApiService.parseResponse(response);
+
+    return parsedResponse;
+  }
+
+  async deleteEvent (event) {
+    const response = await this._load({
+      url: `${DataTypes.EVENTS}/${event.id}`,
+      method: Methods.DELETE,
+    });
+
+    return response;
   }
 
   #adaptEventForServer (event) {

@@ -291,6 +291,10 @@ export default class FormEditEventView extends AbstractStatefulView {
       this.#getDestination(newDestinationId);
       this.updateElement({...this._state, destination: this.#eventDestination.id});
     }
+    if (evt.target.matches('.event__input--price')) {
+      const newPrice = parseInt(evt.target.value, 10);
+      this.updateElement({...this._state, basePrice: newPrice});
+    }
   };
 
   #offerClickHandler = (evt) => {
