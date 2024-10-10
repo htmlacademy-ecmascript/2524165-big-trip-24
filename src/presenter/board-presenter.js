@@ -80,11 +80,6 @@ export default class BoardPresenter {
     this.#newEventPresenter.init();
   }
 
-  #resetSortAndFilterTypes = () => {
-    this.#currentSortType = SortTypes.DAY;
-    this.#filterModel.setFilter(UpdateTypes.MAJOR, FilterTypes.EVERYTHING);
-  };
-
   #renderEmptyEventsList () {
     if (this.events.length === 0) {
       this.#emptyListComponent = new EventListEmptyView(this.#filterModel.filter);

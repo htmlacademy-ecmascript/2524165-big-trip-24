@@ -2,7 +2,6 @@ import { RenderPosition, render, remove } from '../framework/render.js';
 import { isEscKey } from '../utilities/util.js';
 import { ActionTypes, UpdateTypes } from '../constants.js';
 import FormNewEventView from '../view/form-new-event-view.js';
-import { nanoid } from 'nanoid';
 
 export default class NewEventPresenter {
   #offers = null;
@@ -49,7 +48,7 @@ export default class NewEventPresenter {
   };
 
   #onFormSubmit = (updatedEvent) => {
-    this.#dataChangeHandler(ActionTypes.ADD_TRIP, UpdateTypes.MINOR, {id: nanoid(), ...updatedEvent});
+    this.#dataChangeHandler(ActionTypes.ADD_TRIP, UpdateTypes.MINOR, updatedEvent);
     document.removeEventListener('keydown', this.#escKeyDownHandler);
     this.destroy();
   };

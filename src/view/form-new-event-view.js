@@ -282,7 +282,7 @@ export default class FormNewEventView extends AbstractStatefulView {
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    //this.#handleFormSubmit(FormNewEventView.parseStateToEvent(this._state)); Временно отключил до выполнения следующего задания
+    this.#handleFormSubmit(FormNewEventView.parseStateToEvent(this._state));
   };
 
   #formChangeHandler = (evt) => {
@@ -297,6 +297,10 @@ export default class FormNewEventView extends AbstractStatefulView {
       const newDestinationId = this.#destinations.find((destination) => destination.name === newDestinationName).id;
       this.#getDestination(newDestinationId);
       this.updateElement({...this._state, destination: this.#eventDestination.id});
+    }
+    if (evt.target.matches('.event__input--price')) {
+      const newPrice = parseInt(evt.target.value, 10);
+      this.updateElement({...this._state, basePrice: newPrice});
     }
   };
 
