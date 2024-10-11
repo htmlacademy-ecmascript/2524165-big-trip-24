@@ -8,6 +8,12 @@ import EventListEmptyView from '../view/event-list-empty-view.js';
 import EventPresenter from './event-presenter.js';
 import NewEventPresenter from './new-event-presenter.js';
 import LoadingView from '../view/loading-view.js';
+import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
+
+const TimeLimit = {
+  LOWER_LIMIT: 500,
+  UPPER_LIMIT: 5000,
+};
 
 export default class BoardPresenter {
   #tripModel = null;
@@ -25,6 +31,11 @@ export default class BoardPresenter {
 
   #isNewEventFormVisible = false;
   #isLoading = true;
+
+  #uiBlocker = new UiBlocker({
+    lowerLimit: TimeLimit.LOWER_LIMIT,
+    upperLimit: TimeLimit.UPPER_LIMIT
+  });
 
   constructor(eventsContainer, tripModel, filterModel, offersModel, destinationsModel) {
     this.#eventsContainer = eventsContainer;
@@ -147,6 +158,8 @@ export default class BoardPresenter {
   };
 
   #handleViewAction = (actionType, updateType, update) => {
+    this.#uiBlocker.block();
+
     switch (actionType) {
       case ActionTypes.ADD_TRIP:
         this.#tripModel.addEvent(updateType, update);
@@ -158,6 +171,8 @@ export default class BoardPresenter {
         this.#tripModel.deleteEvent(updateType, update);
         break;
     }
+
+    this.#uiBlocker.unblock();
   };
 
   #handleModelChange = (updateType, update) => {
