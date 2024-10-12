@@ -48,7 +48,8 @@ export default class EventPresenter {
     }
 
     if (this.#mode === Mode.EDITING) {
-      replace (this.#eventEditComponent, prevEventEditComponent);
+      replace (this.#eventComponent, prevEventComponent);
+      this.#mode = Mode.DEFAULT;
     }
 
     remove(prevEventComponent);
@@ -59,6 +60,18 @@ export default class EventPresenter {
   resetView () {
     if (this.#mode !== Mode.DEFAULT) {
       this.#replaceFormToEvent();
+    }
+  }
+
+  setSaving () {
+    if (this.#mode === Mode.EDITING) {
+      this.#eventEditComponent.updateElement({isSaving: true});
+    }
+  }
+
+  setDeleting () {
+    if (this.#mode === Mode.EDITING) {
+      this.#eventEditComponent.updateElement({isDeleting: true});
     }
   }
 
@@ -88,7 +101,6 @@ export default class EventPresenter {
 
   #onFormSubmit = (updatedEvent) => {
     this.#dataChangeHandler(ActionTypes.UPDATE_TRIP, UpdateTypes.MINOR, updatedEvent);
-    this.#replaceFormToEvent();
     document.removeEventListener('keydown', this.#escKeyDownHandler);
   };
 

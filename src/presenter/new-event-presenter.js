@@ -39,6 +39,10 @@ export default class NewEventPresenter {
     this.#newEventComponent = null;
   }
 
+  setSaving () {
+    this.#newEventComponent.updateElement({isSaving: true});
+  }
+
   #escKeyDownHandler = (evt) => {
     if (isEscKey(evt)) {
       evt.preventDefault();
@@ -50,7 +54,6 @@ export default class NewEventPresenter {
   #onFormSubmit = (updatedEvent) => {
     this.#dataChangeHandler(ActionTypes.ADD_TRIP, UpdateTypes.MINOR, updatedEvent);
     document.removeEventListener('keydown', this.#escKeyDownHandler);
-    this.destroy();
   };
 
   #onCancelButtonClick = () => {
