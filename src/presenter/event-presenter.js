@@ -65,13 +65,13 @@ export default class EventPresenter {
 
   setSaving () {
     if (this.#mode === Mode.EDITING) {
-      this.#eventEditComponent.updateElement({isSaving: true});
+      this.#eventEditComponent.updateElement({isSaving: true, isDisabled: true});
     }
   }
 
   setDeleting () {
     if (this.#mode === Mode.EDITING) {
-      this.#eventEditComponent.updateElement({isDeleting: true});
+      this.#eventEditComponent.updateElement({isDeleting: true, isDisabled: true});
     }
   }
 
@@ -82,7 +82,7 @@ export default class EventPresenter {
     }
 
     const resetStateMode = () => {
-      this.#eventEditComponent.updateElement({isSaving: false, isDeleting: false});
+      this.#eventEditComponent.updateElement({isSaving: false, isDeleting: false, isDisabled: false});
     };
 
     this.#eventEditComponent.shake(resetStateMode);

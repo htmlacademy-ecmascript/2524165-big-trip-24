@@ -40,12 +40,12 @@ export default class NewEventPresenter {
   }
 
   setSaving () {
-    this.#newEventComponent.updateElement({isSaving: true});
+    this.#newEventComponent.updateElement({isSaving: true, isDisabled: true});
   }
 
   setAborting () {
     const resetStateMode = () => {
-      this.#newEventComponent.updateElement({isSaving: false});
+      this.#newEventComponent.updateElement({isSaving: false, isDisabled: false});
     };
 
     this.#newEventComponent.shake(resetStateMode);
