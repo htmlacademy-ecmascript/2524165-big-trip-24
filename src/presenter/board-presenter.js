@@ -162,12 +162,15 @@ export default class BoardPresenter {
 
     switch (actionType) {
       case ActionTypes.ADD_TRIP:
+        this.#newEventPresenter.setSaving();
         this.#tripModel.addEvent(updateType, update);
         break;
       case ActionTypes.UPDATE_TRIP:
+        this.#eventPresenters.get(update.id).setSaving();
         this.#tripModel.updateEvent(updateType, update);
         break;
       case ActionTypes.DELETE_TRIP:
+        this.#eventPresenters.get(update.id).setDeleting();
         this.#tripModel.deleteEvent(updateType, update);
         break;
     }
