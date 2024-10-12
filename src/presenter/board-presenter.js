@@ -157,21 +157,35 @@ export default class BoardPresenter {
     this.#renderBoard();
   };
 
-  #handleViewAction = (actionType, updateType, update) => {
+  #handleViewAction = async (actionType, updateType, update) => {
     this.#uiBlocker.block();
 
     switch (actionType) {
       case ActionTypes.ADD_TRIP:
         this.#newEventPresenter.setSaving();
-        this.#tripModel.addEvent(updateType, update);
+        try {
+          await this.#tripModel.addEvent(updateType, update);
+        } catch(err) {
+          this.#newEventPresenter.setAborting();
+        }
         break;
+
       case ActionTypes.UPDATE_TRIP:
         this.#eventPresenters.get(update.id).setSaving();
-        this.#tripModel.updateEvent(updateType, update);
+        try {
+          await this.#tripModel.updateEvent(updateType, update);
+        } catch(err) {
+          this.#eventPresenters.get(update.id).setAborting();
+        }
         break;
+
       case ActionTypes.DELETE_TRIP:
         this.#eventPresenters.get(update.id).setDeleting();
-        this.#tripModel.deleteEvent(updateType, update);
+        try {
+          await this.#tripModel.deleteEvent(updateType, update);
+        } catch(err) {
+          this.#eventPresenters.get(update.id).setAborting();
+        }
         break;
     }
 

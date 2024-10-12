@@ -75,6 +75,19 @@ export default class EventPresenter {
     }
   }
 
+  setAborting () {
+    if (this.#mode === Mode.DEFAULT) {
+      this.#eventComponent.shake();
+      return;
+    }
+
+    const resetStateMode = () => {
+      this.#eventEditComponent.updateElement({isSaving: false, isDeleting: false});
+    };
+
+    this.#eventEditComponent.shake(resetStateMode);
+  }
+
   destroy () {
     remove(this.#eventComponent);
     remove(this.#eventEditComponent);

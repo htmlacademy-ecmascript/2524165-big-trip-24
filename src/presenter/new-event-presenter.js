@@ -43,6 +43,14 @@ export default class NewEventPresenter {
     this.#newEventComponent.updateElement({isSaving: true});
   }
 
+  setAborting () {
+    const resetStateMode = () => {
+      this.#newEventComponent.updateElement({isSaving: false});
+    };
+
+    this.#newEventComponent.shake(resetStateMode);
+  }
+
   #escKeyDownHandler = (evt) => {
     if (isEscKey(evt)) {
       evt.preventDefault();
