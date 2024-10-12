@@ -9,7 +9,7 @@ import he from 'he';
 import 'flatpickr/dist/flatpickr.min.css';
 
 function createFormEditEventTemplate (event, eventTypeOffers, eventDestination, destinations) {
-  const { basePrice, dateFrom, dateTo, offers: eventOffers, type } = event;
+  const { basePrice, dateFrom, dateTo, offers: eventOffers, type, isDeleting, isSaving } = event;
   const { name, description, pictures } = eventDestination;
 
   return `<li class="trip-events__item">
@@ -21,8 +21,8 @@ function createFormEditEventTemplate (event, eventTypeOffers, eventDestination, 
                   ${createTimeFieldGroup(dateFrom, dateTo)}
                   ${createPriceFieldGroup(basePrice)}
 
-                  <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-                  <button class="event__reset-btn" type="reset">Delete</button>
+                  <button class="event__save-btn  btn  btn--blue" type="submit">${isSaving ? 'Saving...' : 'Save'}</button>
+                  <button class="event__reset-btn" type="reset">${isDeleting ? 'Deleting...' : 'Delete'}</button>
                   <button class="event__rollup-btn" type="button">
                     <span class="visually-hidden">Open event</span>
                   </button>
@@ -209,12 +209,16 @@ export default class FormEditEventView extends AbstractStatefulView {
   }
 
   static parseEventToState (event) {
-    const state = {...event};
+    const state = {...event, isSaving: false, isDeleting: false};
     return state;
   }
 
   static parseStateToEvent (state) {
     const event = {...state};
+
+    delete event.isSaving;
+    delete event.isDeleting;
+
     return event;
   }
 

@@ -23,7 +23,7 @@ const BLANK_EVENT = {
 };
 
 function createFormAddEventTemplate (event, eventTypeOffers, eventDestination, destinations) {
-  const { basePrice, dateFrom, dateTo, offers: eventOffers, type } = event;
+  const { basePrice, dateFrom, dateTo, offers: eventOffers, type, isSaving } = event;
   const { name, description, pictures } = eventDestination ? eventDestination : '';
   return `<li class="trip-events__item">
             <form class="event event--edit" action="#" method="post">
@@ -34,7 +34,7 @@ function createFormAddEventTemplate (event, eventTypeOffers, eventDestination, d
                   ${createTimeFieldGroup(dateFrom, dateTo)}
                   ${createPriceFieldGroup(basePrice)}
 
-                  <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
+                  <button class="event__save-btn  btn  btn--blue" type="submit">${isSaving ? 'Saving...' : 'Save'}</button>
                   <button class="event__reset-btn" type="reset">Cancel</button>
 
                 </header>
@@ -230,12 +230,14 @@ export default class FormNewEventView extends AbstractStatefulView {
   }
 
   static parseEventToState (event) {
-    const state = {...event};
+    const state = {...event, isSaving: false};
     return state;
   }
 
   static parseStateToEvent (state) {
     const event = {...state};
+
+    delete event.isSaving;
 
     return event;
   }

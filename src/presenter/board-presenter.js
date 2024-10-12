@@ -11,8 +11,8 @@ import LoadingView from '../view/loading-view.js';
 import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 
 const TimeLimit = {
-  LOWER_LIMIT: 500,
-  UPPER_LIMIT: 5000,
+  LOWER_LIMIT: 200,
+  UPPER_LIMIT: 1000,
 };
 
 export default class BoardPresenter {
