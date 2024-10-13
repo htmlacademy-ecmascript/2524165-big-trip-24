@@ -10,7 +10,7 @@ function createHeaderTemplate (destinationSet, totalPrice, dateStart, dateEnd) {
             <div class="trip-info__main">
               <h1 class="trip-info__title">${destinationSet.at(0)} &mdash; ${isDestinationCountLimitExceeded ? '...' : destinationSet.at(1)} &mdash; ${destinationSet.at(-1)}</h1>
 
-              <p class="trip-info__dates">${dateStart}}&nbsp;&mdash;&nbsp;${dateEnd}</p>
+              <p class="trip-info__dates">${dateStart}&nbsp;&mdash;&nbsp;${dateEnd}</p>
             </div>
 
             <p class="trip-info__cost">

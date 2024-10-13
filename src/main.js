@@ -26,7 +26,7 @@ const newEventButtonComponent = new NewEventButtonView(handleNewEventButtonClick
 
 const filterPresenter = new FilterPresenter(filterContainerElement, filterModel, tripModel);
 const boardPresenter = new BoardPresenter(tripEventsContainerElement, tripModel, filterModel, offersModel, destinationsModel);
-const headerPresenter = new HeaderPresenter(headerContainerElement, tripModel, offersModel,destinationsModel);
+const headerPresenter = new HeaderPresenter(headerContainerElement, tripModel, offersModel, destinationsModel);
 
 filterPresenter.init();
 boardPresenter.init();

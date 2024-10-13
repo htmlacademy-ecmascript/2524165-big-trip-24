@@ -1,4 +1,4 @@
-import { render, replace, remove } from '../framework/render';
+import { render, replace, remove, RenderPosition } from '../framework/render';
 import { sortByDay } from '../utilities/event';
 import { DateFormats } from '../constants';
 import { formatDate } from '../utilities/event';
@@ -7,8 +7,8 @@ import HeaderView from '../view/header-view';
 
 export default class HeaderPresenter {
   #tripModel = null;
-  #offers = null;
-  #destinations = null;
+  #offersModel = null;
+  #destinationsModel = null;
   #headerContainer = null;
   #headerComponent = null;
 
@@ -19,8 +19,8 @@ export default class HeaderPresenter {
 
   constructor (headerContainer, tripModel, offersModel, destinationsModel) {
     this.#tripModel = tripModel;
-    this.#offers = offersModel.offers;
-    this.#destinations = destinationsModel.destinations;
+    this.#offersModel = offersModel;
+    this.#destinationsModel = destinationsModel;
     this.#headerContainer = headerContainer;
 
     this.#tripModel.addObserver(this.#handleModelEvent);
@@ -32,8 +32,19 @@ export default class HeaderPresenter {
     return sortedEvents;
   }
 
+  get offers () {
+    const offers = this.#offersModel.offers;
+    return offers;
+  }
+
+  get destinations () {
+    const destinations = this.#destinationsModel.destinations;
+    return destinations;
+  }
+
   init() {
     const events = this.events;
+
     const prevHeaderComponent = this.#headerComponent;
 
     this.#summarizeEventsData(events);
@@ -41,7 +52,7 @@ export default class HeaderPresenter {
     this.#headerComponent = new HeaderView(this.#destinationNames, this.#totalPrice, this.#dateStart, this.#dateEnd);
 
     if (prevHeaderComponent === null) {
-      render(this.#headerComponent, this.#headerContainer);
+      render(this.#headerComponent, this.#headerContainer, RenderPosition.AFTERBEGIN);
       return;
     }
 
@@ -72,16 +83,14 @@ export default class HeaderPresenter {
 
   #getEventOffersTotalPrice (event) {
     const eventType = event.type;
-    const offersByType = this.#offers.find((offer) => offer.type === eventType);
+    const offersByType = this.offers.find((offer) => offer.type === eventType).offers;
     const eventOffersIDs = event.offers;
 
     let eventOffersTotalPrice = 0;
 
     for (let i = 0; i < offersByType.length; i++) {
-      for (let j = 0; j < eventOffersIDs.length; j++) {
-        if (offersByType[i].id === eventOffersIDs[j]) {
-          eventOffersTotalPrice += offersByType[i].price;
-        }
+      if (eventOffersIDs.has(offersByType[i].id)) {
+        eventOffersTotalPrice += offersByType[i].price;
       }
     }
 
@@ -89,7 +98,7 @@ export default class HeaderPresenter {
   }
 
   #getEventDestinationName (event) {
-    const eventDestination = this.#destinations.find((destination) => destination.id === event.destination);
+    const eventDestination = this.destinations.find((destination) => destination.id === event.destination);
     return eventDestination.name;
   }
 
