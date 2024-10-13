@@ -9,39 +9,39 @@ import he from 'he';
 import 'flatpickr/dist/flatpickr.min.css';
 
 function createFormEditEventTemplate (event, eventTypeOffers, eventDestination, destinations) {
-  const { basePrice, dateFrom, dateTo, offers: eventOffers, type } = event;
+  const { basePrice, dateFrom, dateTo, offers: eventOffers, type, isDeleting, isSaving, isDisabled } = event;
   const { name, description, pictures } = eventDestination;
 
   return `<li class="trip-events__item">
             <form class="event event--edit" action="#" method="post">
                 <header class="event__header">
 
-                  ${createEventTypeListWrapper(type)}
-                  ${createDestinationFieldGroup(type, name, destinations)}
-                  ${createTimeFieldGroup(dateFrom, dateTo)}
-                  ${createPriceFieldGroup(basePrice)}
+                  ${createEventTypeListWrapper(type, isDisabled)}
+                  ${createDestinationFieldGroup(type, name, destinations, isDisabled)}
+                  ${createTimeFieldGroup(dateFrom, dateTo, isDisabled)}
+                  ${createPriceFieldGroup(basePrice, isDisabled)}
 
-                  <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-                  <button class="event__reset-btn" type="reset">Delete</button>
-                  <button class="event__rollup-btn" type="button">
+                  <button class="event__save-btn  btn  btn--blue" type="submit"${isDisabled ? 'disabled' : ''}>${isSaving ? 'Saving...' : 'Save'}</button>
+                  <button class="event__reset-btn" type="reset"${isDisabled ? 'disabled' : ''}>${isDeleting ? 'Deleting...' : 'Delete'}</button>
+                  <button class="event__rollup-btn" type="button"${isDisabled ? 'disabled' : ''}>
                     <span class="visually-hidden">Open event</span>
                   </button>
                 </header>
                 <section class="event__details">
-                  ${createOffersSection(eventTypeOffers, eventOffers)}
+                  ${createOffersSection(eventTypeOffers, eventOffers, isDisabled)}
                   ${createDestinationSection(description, pictures)}
                 </section>
             </form>
           </li>`;
 }
 
-function createEventTypeListWrapper (eventType) {
+function createEventTypeListWrapper (eventType, isDisabled) {
   const eventTypeListItemsArray = [];
   for (let i = 0; i < TYPES.length; i++) {
     const type = TYPES[i].toLowerCase();
     const typeLabel = TYPES[i];
     const eventTypeListItem = `<div class="event__type-item">
-                                <input id="event-type-${type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}">
+                                <input id="event-type-${type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}" ${isDisabled ? 'disabled' : ''}>
                                 <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-1">${typeLabel}</label>
                               </div>`;
     eventTypeListItemsArray.push(eventTypeListItem);
@@ -63,7 +63,7 @@ function createEventTypeListWrapper (eventType) {
           </div>`;
 }
 
-function createDestinationFieldGroup(eventType, name, destinations) {
+function createDestinationFieldGroup(eventType, name, destinations, isDisabled) {
   const destinationOptionsArray = [];
   for (let i = 0; i < destinations.length; i++) {
     const destinationOption = `<option value="${destinations[i].name}"></option>`;
@@ -75,37 +75,37 @@ function createDestinationFieldGroup(eventType, name, destinations) {
             <label class="event__label  event__type-output" for="event-destination-1">
                 ${eventType}
             </label>
-            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${he.encode(name ? name : '')}" list="destination-list-1">
+            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${he.encode(name ? name : '')}" list="destination-list-1" ${isDisabled ? 'disabled' : ''}>
             <datalist id="destination-list-1">
               ${destinationOptions}
             </datalist>
           </div>`;
 }
 
-function createTimeFieldGroup(dateFrom, dateTo) {
+function createTimeFieldGroup(dateFrom, dateTo, isDisabled) {
   const formattedDateFrom = dateFrom ? formatDate(dateFrom, DateFormats.FULLDATE) : '';
   const formattedDateTo = dateTo ? formatDate(dateTo, DateFormats.FULLDATE) : '';
   return `<div class="event__field-group  event__field-group--time">
             <label class="visually-hidden" for="event-start-time-1">From</label>
-            <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${formattedDateFrom}">
+            <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${formattedDateFrom}" ${isDisabled ? 'disabled' : ''}>
             &mdash;
             <label class="visually-hidden" for="event-end-time-1">To</label>
-            <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${formattedDateTo}">
+            <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${formattedDateTo}" ${isDisabled ? 'disabled' : ''}>
           </div>`;
 }
 
-function createPriceFieldGroup(basePrice) {
+function createPriceFieldGroup(basePrice, isDisabled) {
   const stringBasePrice = basePrice.toString();
   return `<div class="event__field-group  event__field-group--price">
             <label class="event__label" for="event-price-1">
               <span class="visually-hidden">Price</span>
               &euro;
             </label>
-            <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${he.encode(stringBasePrice)}">
+            <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${he.encode(stringBasePrice)}" ${isDisabled ? 'disabled' : ''}>
           </div>`;
 }
 
-function createOffersSection(eventTypeOffers, eventOffers) {
+function createOffersSection(eventTypeOffers, eventOffers, isDisabled) {
   if (eventTypeOffers.length < 1) {
     return '';
   }
@@ -117,7 +117,7 @@ function createOffersSection(eventTypeOffers, eventOffers) {
     const offerIsChecked = eventOffers.has(eventTypeOffers[i].id) ? 'checked' : '';
 
     const offerSelector = `<div class="event__offer-selector">
-                            <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offerName}" type="checkbox" name="event-offer-${offerName}" ${offerIsChecked} data-id="${eventTypeOffers[i].id}">
+                            <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offerName}" type="checkbox" name="event-offer-${offerName}" ${offerIsChecked} data-id="${eventTypeOffers[i].id}" ${isDisabled ? 'disabled' : ''}>
                             <label class="event__offer-label" for="event-offer-${offerName}">
                               <span class="event__offer-title">${offerTitle}</span>
                               &plus;&euro;&nbsp;
@@ -209,12 +209,17 @@ export default class FormEditEventView extends AbstractStatefulView {
   }
 
   static parseEventToState (event) {
-    const state = {...event};
+    const state = {...event, isSaving: false, isDeleting: false, isDisabled: false};
     return state;
   }
 
   static parseStateToEvent (state) {
     const event = {...state};
+
+    delete event.isSaving;
+    delete event.isDeleting;
+    delete event.isDisabled;
+
     return event;
   }
 
@@ -290,6 +295,10 @@ export default class FormEditEventView extends AbstractStatefulView {
       const newDestinationId = this.#destinations.find((destination) => destination.name === newDestinationName).id;
       this.#getDestination(newDestinationId);
       this.updateElement({...this._state, destination: this.#eventDestination.id});
+    }
+    if (evt.target.matches('.event__input--price')) {
+      const newPrice = parseInt(evt.target.value, 10);
+      this.updateElement({...this._state, basePrice: newPrice});
     }
   };
 

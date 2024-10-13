@@ -27,12 +27,10 @@ const boardPresenter = new BoardPresenter(tripEventsContainerElement, tripModel,
 
 filterPresenter.init();
 boardPresenter.init();
+
 Promise.all([offersModel.init(), destinationsModel.init()]).then(() => {
-  tripModel.init();
+  tripModel.init().finally(() => render(newEventButtonComponent, newEventButtonContainerElement));
 });
-
-
-render(newEventButtonComponent, newEventButtonContainerElement);
 
 function handleNewEventButtonClick() {
   boardPresenter.createEvent();

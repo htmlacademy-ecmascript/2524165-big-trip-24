@@ -8,6 +8,12 @@ import EventListEmptyView from '../view/event-list-empty-view.js';
 import EventPresenter from './event-presenter.js';
 import NewEventPresenter from './new-event-presenter.js';
 import LoadingView from '../view/loading-view.js';
+import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
+
+const TimeLimit = {
+  LOWER_LIMIT: 200,
+  UPPER_LIMIT: 1000,
+};
 
 export default class BoardPresenter {
   #tripModel = null;
@@ -25,6 +31,11 @@ export default class BoardPresenter {
 
   #isNewEventFormVisible = false;
   #isLoading = true;
+
+  #uiBlocker = new UiBlocker({
+    lowerLimit: TimeLimit.LOWER_LIMIT,
+    upperLimit: TimeLimit.UPPER_LIMIT
+  });
 
   constructor(eventsContainer, tripModel, filterModel, offersModel, destinationsModel) {
     this.#eventsContainer = eventsContainer;
@@ -79,11 +90,6 @@ export default class BoardPresenter {
     this.#isNewEventFormVisible = !this.#isNewEventFormVisible;
     this.#newEventPresenter.init();
   }
-
-  #resetSortAndFilterTypes = () => {
-    this.#currentSortType = SortTypes.DAY;
-    this.#filterModel.setFilter(UpdateTypes.MAJOR, FilterTypes.EVERYTHING);
-  };
 
   #renderEmptyEventsList () {
     if (this.events.length === 0) {
@@ -151,18 +157,39 @@ export default class BoardPresenter {
     this.#renderBoard();
   };
 
-  #handleViewAction = (actionType, updateType, update) => {
+  #handleViewAction = async (actionType, updateType, update) => {
+    this.#uiBlocker.block();
+
     switch (actionType) {
       case ActionTypes.ADD_TRIP:
-        this.#tripModel.addEvent(updateType, update);
+        this.#newEventPresenter.setSaving();
+        try {
+          await this.#tripModel.addEvent(updateType, update);
+        } catch(err) {
+          this.#newEventPresenter.setAborting();
+        }
         break;
+
       case ActionTypes.UPDATE_TRIP:
-        this.#tripModel.updateEvent(updateType, update);
+        this.#eventPresenters.get(update.id).setSaving();
+        try {
+          await this.#tripModel.updateEvent(updateType, update);
+        } catch(err) {
+          this.#eventPresenters.get(update.id).setAborting();
+        }
         break;
+
       case ActionTypes.DELETE_TRIP:
-        this.#tripModel.deleteEvent(updateType, update);
+        this.#eventPresenters.get(update.id).setDeleting();
+        try {
+          await this.#tripModel.deleteEvent(updateType, update);
+        } catch(err) {
+          this.#eventPresenters.get(update.id).setAborting();
+        }
         break;
     }
+
+    this.#uiBlocker.unblock();
   };
 
   #handleModelChange = (updateType, update) => {
