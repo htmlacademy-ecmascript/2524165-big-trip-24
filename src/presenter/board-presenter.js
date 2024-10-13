@@ -80,9 +80,7 @@ export default class BoardPresenter {
     if (!this.#isNewEventFormVisible) {
       this.#currentSortType = SortTypes.DAY;
       this.#filterModel.setFilter(UpdateTypes.MAJOR, FilterTypes.EVERYTHING);
-
-      this.#newEventPresenter = new NewEventPresenter(this.#eventListComponent.element, this.#handleViewAction, this.offers, this.destinations);
-
+      this.#newEventPresenter = new NewEventPresenter(this.#eventListComponent.element, this.#handleViewAction, this.offers, this.destinations)
       remove(this.#emptyListComponent);
     } else {
       this.#renderEmptyEventsList();
@@ -131,6 +129,10 @@ export default class BoardPresenter {
   #clearBoard (resetSortType = false) {
     this.#eventPresenters.forEach((presenter) => presenter.destroy());
     this.#eventPresenters.clear();
+
+    if (this.#newEventPresenter) {
+      this.#newEventPresenter.destroy();
+    }
 
     remove(this.#sortListComponent);
     remove(this.#emptyListComponent);
