@@ -17,10 +17,10 @@ export default class HeaderPresenter {
   #dateStart = null;
   #dateEnd = null;
 
-  constructor (headerContainer, tripModel, offers, destinations) {
+  constructor (headerContainer, tripModel, offersModel, destinationsModel) {
     this.#tripModel = tripModel;
-    this.#offers = offers;
-    this.#destinations = destinations;
+    this.#offers = offersModel.offers;
+    this.#destinations = destinationsModel.destinations;
     this.#headerContainer = headerContainer;
 
     this.#tripModel.addObserver(this.#handleModelEvent);
@@ -52,7 +52,7 @@ export default class HeaderPresenter {
   #summarizeEventsData (events) {
     const destinationSet = new Set();
     events.forEach((event) => destinationSet.add(this.#getEventDestinationName(event)));
-    this.#destinationNames = destinationSet;
+    this.#destinationNames = Array.from(destinationSet);
 
     this.#totalPrice = this.#getEventsTotalPrice(events);
 
