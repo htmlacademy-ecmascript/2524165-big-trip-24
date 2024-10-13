@@ -2,13 +2,13 @@ import AbstractView from '../framework/view/abstract-view';
 
 const DESTINATION_COUNT_LIMIT = 3;
 
-function createHeaderTemplate (destinationArr, totalPrice, dateStart, dateEnd) {
-  const isDestinationCountLimitExceeded = destinationArr.length > DESTINATION_COUNT_LIMIT;
+function createHeaderTemplate (destinationSet, totalPrice, dateStart, dateEnd) {
+  const isDestinationCountLimitExceeded = destinationSet.length > DESTINATION_COUNT_LIMIT;
   const totalPriceString = String(totalPrice);
 
   return `<section class="trip-main__trip-info  trip-info">
             <div class="trip-info__main">
-              <h1 class="trip-info__title">${destinationArr.at(0)} &mdash; ${isDestinationCountLimitExceeded ? '...' : destinationArr.at(1)} &mdash; ${destinationArr.at(-1)}</h1>
+              <h1 class="trip-info__title">${destinationSet.at(0)} &mdash; ${isDestinationCountLimitExceeded ? '...' : destinationSet.at(1)} &mdash; ${destinationSet.at(-1)}</h1>
 
               <p class="trip-info__dates">${dateStart}}&nbsp;&mdash;&nbsp;${dateEnd}</p>
             </div>
