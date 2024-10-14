@@ -81,8 +81,8 @@ export default class TripModel extends Observable {
     const adaptedEvent = {
       ...event,
       basePrice: event.base_price,
-      dateFrom: event.date_from,
-      dateTo: event.date_to,
+      dateFrom: new Date(event.date_from),
+      dateTo: new Date(event.date_to),
       isFavorite: event.is_favorite,
       offers: new Set(event.offers),
     };

@@ -1,5 +1,5 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-import { TYPES } from '../constants.js';
+import { TYPES, SAME_DATE_OFFSET_IN_MINUTES } from '../constants.js';
 import { formatDate } from '../utilities/event.js';
 import { DateFormats } from '../constants.js';
 import dayjs from 'dayjs';
@@ -251,6 +251,9 @@ export default class FormEditEventView extends AbstractStatefulView {
   }
 
   #setDatepicker() {
+    const dateFromObject = new Date(this._state.dateFrom.getTime());
+    dateFromObject.setMinutes(dateFromObject.getMinutes() + SAME_DATE_OFFSET_IN_MINUTES);
+
     this.#datepickerFrom = flatpickr(
       this.element.querySelector('.event__input--time[id="event-start-time-1"'),
       {
@@ -272,7 +275,7 @@ export default class FormEditEventView extends AbstractStatefulView {
         time_24hr: true,
         /* eslint-enable */
         defaultDate: this._state.dateTo,
-        minDate: this._state.dateFrom,
+        minDate: dateFromObject,
         onChange: this.#dateToChangeHandler,
       },
     );
@@ -319,7 +322,10 @@ export default class FormEditEventView extends AbstractStatefulView {
 
   #dateFromChangeHandler = ([dateFrom]) => {
     if (dayjs(this._state.dateTo).diff(dateFrom, 'minutes') < 0) {
-      this.updateElement({...this._state, dateFrom: dateFrom, dateTo: dateFrom});
+      const dateFromObject = new Date(dateFrom.getTime());
+      dateFromObject.setMinutes(dateFromObject.getMinutes() + SAME_DATE_OFFSET_IN_MINUTES);
+
+      this.updateElement({...this._state, dateFrom: dateFrom, dateTo: dateFromObject});
     } else {
       this.updateElement({...this._state, dateFrom: dateFrom});
     }
