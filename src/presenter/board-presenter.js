@@ -195,7 +195,9 @@ export default class BoardPresenter {
         try {
           await this.#tripModel.deleteEvent(updateType, update);
         } catch(err) {
-          this.#eventPresenters.get(update.id).setAborting();
+          if (this.#eventPresenters.length > 0) {
+            this.#eventPresenters.get(update.id).setAborting();
+          }
         }
         break;
     }
