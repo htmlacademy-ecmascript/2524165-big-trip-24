@@ -44,6 +44,9 @@ export default class HeaderPresenter {
 
   init() {
     const events = this.events;
+    if (events.length === 0) {
+      return;
+    }
 
     const prevHeaderComponent = this.#headerComponent;
 

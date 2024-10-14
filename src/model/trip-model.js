@@ -10,6 +10,10 @@ export default class TripModel extends Observable {
     this.#tripApiService = tripApiService;
   }
 
+  get events() {
+    return this.#events;
+  }
+
   async init () {
     try {
       const events = await this.#tripApiService.events;
@@ -18,10 +22,6 @@ export default class TripModel extends Observable {
       this.#events = [];
     }
     this._notify(UpdateTypes.INIT);
-  }
-
-  get events() {
-    return this.#events;
   }
 
   async updateEvent (updateType, update) {
