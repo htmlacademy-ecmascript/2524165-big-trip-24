@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 
 const MINUTES_IN_AN_HOUR = 60;
 const HOURS_IN_A_DAY = 24;
-const MIN_LETTERS_AMOUNT = 2;
+const MIN_LETTERS_AMOUNT = 3;
 
 function formatDate(date, dateFormat) {
   return dayjs(date).format(dateFormat);
@@ -21,9 +21,9 @@ function getTimeFromTo(dateFrom, dateTo) {
   const days = Math.trunc(time / MINUTES_IN_AN_HOUR / HOURS_IN_A_DAY);
   const minutes = time % MINUTES_IN_AN_HOUR;
 
-  const hoursString = hours ? timeToString(hours, 'H').padStart(MIN_LETTERS_AMOUNT, '0') : '';
+  const hoursString = timeToString(hours, 'H').padStart(MIN_LETTERS_AMOUNT, '0');
   const daysString = days ? timeToString(days, 'D').padStart(MIN_LETTERS_AMOUNT, '0') : '';
-  const minutesString = minutes ? timeToString(minutes, 'M').padStart(MIN_LETTERS_AMOUNT, '0') : '';
+  const minutesString = timeToString(minutes, 'M').padStart(MIN_LETTERS_AMOUNT, '0');
 
   return `${daysString} ${hoursString} ${minutesString}`;
 }
