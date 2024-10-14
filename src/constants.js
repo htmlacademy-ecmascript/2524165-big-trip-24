@@ -21,7 +21,7 @@ const DESTINATION_NAMES = [
 const DateFormats = {
   FULLDATE: 'DD/MM/YYYY HH:mm',
   HOURS: 'HH:mm',
-  MONTHDAY: 'D/MMM',
+  MONTHDAY: 'MMM D',
   MONTHDAY_NOSLASH: 'D MMM'
 };
 
