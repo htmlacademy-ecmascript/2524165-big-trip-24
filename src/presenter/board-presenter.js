@@ -8,6 +8,7 @@ import EventListEmptyView from '../view/event-list-empty-view.js';
 import EventPresenter from './event-presenter.js';
 import NewEventPresenter from './new-event-presenter.js';
 import LoadingView from '../view/loading-view.js';
+import ErrorView from '../view/error-view.js';
 import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 
 const TimeLimit = {
@@ -25,6 +26,7 @@ export default class BoardPresenter {
   #sortListComponent = null;
   #emptyListComponent = null;
   #loadingComponent = new LoadingView();
+  #errorComponent = new ErrorView();
   #eventPresenters = new Map();
   #newEventPresenter = null;
   #currentSortType = SortTypes.DAY;
@@ -80,13 +82,20 @@ export default class BoardPresenter {
     if (!this.#isNewEventFormVisible) {
       this.#currentSortType = SortTypes.DAY;
       this.#filterModel.setFilter(UpdateTypes.MAJOR, FilterTypes.EVERYTHING);
-      this.#newEventPresenter = new NewEventPresenter(this.#eventListComponent.element, this.#handleViewAction, this.offers, this.destinations)
+
+      this.#newEventPresenter = new NewEventPresenter(this.#eventListComponent.element, this.#handleViewAction, this.offers, this.destinations);
+
       remove(this.#emptyListComponent);
     } else {
       this.#renderEmptyEventsList();
     }
     this.#isNewEventFormVisible = !this.#isNewEventFormVisible;
     this.#newEventPresenter.init();
+  }
+
+  showError () {
+    this.#clearBoard();
+    render(this.#errorComponent, this.#eventsContainer);
   }
 
   #renderEmptyEventsList () {

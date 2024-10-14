@@ -32,8 +32,9 @@ filterPresenter.init();
 boardPresenter.init();
 
 Promise.all([offersModel.init(), destinationsModel.init()]).then(() => {
-  tripModel.init().finally(() => {
+  tripModel.init().then(() => newEventButtonComponent.setEnabled()).catch(() => boardPresenter.showError()).finally(() => {
     render(newEventButtonComponent, newEventButtonContainerElement);
+    newEventButtonComponent.init();
     headerPresenter.init();
   });
 });

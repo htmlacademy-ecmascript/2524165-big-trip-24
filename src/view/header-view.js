@@ -3,6 +3,10 @@ import AbstractView from '../framework/view/abstract-view';
 const DESTINATION_COUNT_LIMIT = 3;
 
 function createHeaderTemplate (destinationSet, totalPrice, dateStart, dateEnd) {
+  if (!destinationSet || !totalPrice || !dateStart || !dateEnd) {
+    return '';
+  }
+
   const isDestinationCountLimitExceeded = destinationSet.length > DESTINATION_COUNT_LIMIT;
   const totalPriceString = String(totalPrice);
 
