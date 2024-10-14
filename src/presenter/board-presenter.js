@@ -215,7 +215,7 @@ export default class BoardPresenter {
         this.#renderBoard();
         break;
       case UpdateTypes.MAJOR:
-        this.#clearBoard();
+        this.#clearBoard(true);
         this.#renderBoard();
         break;
       case UpdateTypes.INIT:
