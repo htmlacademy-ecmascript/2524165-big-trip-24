@@ -51,4 +51,6 @@ const UpdateTypes = {
   INIT: 'Init',
 };
 
-export { TYPES, DESTINATION_NAMES, DateFormats, FilterTypes, SortTypes, ActionTypes, UpdateTypes };
+const SAME_DATE_OFFSET_IN_MINUTES = 5;
+
+export { TYPES, DESTINATION_NAMES, DateFormats, FilterTypes, SortTypes, ActionTypes, UpdateTypes, SAME_DATE_OFFSET_IN_MINUTES };
