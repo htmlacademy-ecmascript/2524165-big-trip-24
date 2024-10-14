@@ -50,10 +50,6 @@ export default class BoardPresenter {
     this.#filterModel.addObserver(this.#handleModelChange);
   }
 
-  init() {
-    this.#renderBoard();
-  }
-
   get events () {
     const filterType = this.#filterModel.filter;
     const events = this.#tripModel.events;
@@ -78,12 +74,16 @@ export default class BoardPresenter {
     return this.#destinationsModel.destinations;
   }
 
+  init() {
+    this.#renderBoard();
+  }
+
   createEvent () {
     if (!this.#isNewEventFormVisible) {
       this.#currentSortType = SortTypes.DAY;
       this.#filterModel.setFilter(UpdateTypes.MAJOR, FilterTypes.EVERYTHING);
 
-      this.#newEventPresenter = new NewEventPresenter(this.#eventListComponent.element, this.#handleViewAction, this.offers, this.destinations);
+      this.#newEventPresenter = new NewEventPresenter(this.#eventListComponent.element, this.#handleViewAction, this.offers, this.destinations, this.#handleNewEventClose);
 
       remove(this.#emptyListComponent);
     } else {
@@ -100,6 +100,7 @@ export default class BoardPresenter {
 
   #renderEmptyEventsList () {
     if (this.events.length === 0) {
+      this.#clearBoard();
       this.#emptyListComponent = new EventListEmptyView(this.#filterModel.filter);
       render(this.#emptyListComponent, this.#eventsContainer);
     }
@@ -126,7 +127,10 @@ export default class BoardPresenter {
     const eventsCount = events.length;
 
     this.#renderEmptyEventsList();
-    this.#renderSortView();
+
+    if (eventsCount > 0) {
+      this.#renderSortView();
+    }
 
     for (let i = 0; i < eventsCount; i++) {
       const eventPresenter = new EventPresenter(this.#eventListComponent.element, this.#handleViewAction, this.#handleModeChange, this.offers, this.destinations);
@@ -226,4 +230,7 @@ export default class BoardPresenter {
     }
   };
 
+  #handleNewEventClose = () => {
+    this.#renderEmptyEventsList();
+  };
 }

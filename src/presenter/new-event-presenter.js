@@ -10,19 +10,21 @@ export default class NewEventPresenter {
   #newEventComponent = null;
 
   #dataChangeHandler = null;
+  #newEventCloseHandler = null;
 
-  constructor(eventContainer, onDataChange, offers, destinations) {
+  constructor(eventContainer, onDataChange, offers, destinations, onNewEventClose) {
     this.#eventContainer = eventContainer;
     this.#dataChangeHandler = onDataChange;
     this.#offers = offers;
     this.#destinations = destinations;
+    this.#newEventCloseHandler = onNewEventClose;
   }
 
   init () {
     const prevNewEventComponent = this.#newEventComponent;
 
     if (prevNewEventComponent === null) {
-      this.#newEventComponent = new FormNewEventView(this.#onFormSubmit, this.#onCancelButtonClick, this.#offers, this.#destinations);
+      this.#newEventComponent = new FormNewEventView(this.#onFormSubmit, this.#onCancelButtonClick, this.#offers, this.#destinations, this);
       render(this.#newEventComponent, this.#eventContainer, RenderPosition.AFTERBEGIN);
 
       document.addEventListener('keydown', this.#escKeyDownHandler);
@@ -55,6 +57,7 @@ export default class NewEventPresenter {
     if (isEscKey(evt)) {
       evt.preventDefault();
       document.removeEventListener('keydown', this.#escKeyDownHandler);
+      this.#newEventCloseHandler();
       this.destroy();
     }
   };
@@ -66,6 +69,7 @@ export default class NewEventPresenter {
 
   #onCancelButtonClick = () => {
     document.removeEventListener('keydown', this.#escKeyDownHandler);
+    this.#newEventCloseHandler();
     this.destroy();
   };
 
