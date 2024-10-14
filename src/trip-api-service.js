@@ -70,8 +70,8 @@ export default class TripApiService extends ApiService {
     const adaptedEvent = {
       ...event,
       /* eslint-disable */
-      date_from: event.dateFrom,// instanceof Date ? event.dateFrom.toISOString() : null,
-      date_to: event.dateTo,// instanceof Date ? event.dateTo.toISOString() : null,
+      date_from: event.dateFrom instanceof Date ? event.dateFrom.toISOString() : event.dateFrom,
+      date_to: event.dateTo instanceof Date ? event.dateTo.toISOString() : event.dateTo,
       base_price: event.basePrice,
       is_favorite: event.isFavorite,
       /* eslint-enable */
