@@ -256,8 +256,10 @@ export default class FormNewEventView extends AbstractStatefulView {
   }
 
   #setDatepicker() {
-    const dateFromObject = new Date(this._state.dateFrom.getTime());
-    dateFromObject.setMinutes(dateFromObject.getMinutes() + SAME_DATE_OFFSET_IN_MINUTES);
+    const dateFromObject = this._state.dateFrom ? new Date(this._state.dateFrom.getTime()) : '';
+    if (this._state.dateFrom) {
+      dateFromObject.setMinutes(dateFromObject.getMinutes() + SAME_DATE_OFFSET_IN_MINUTES);
+    }
 
     this.#datepickerFrom = flatpickr(
       this.element.querySelector('.event__input--time[id="event-start-time-1"'),
@@ -280,7 +282,7 @@ export default class FormNewEventView extends AbstractStatefulView {
         time_24hr: true,
         /* eslint-enable */
         defaultDate: this._state.dateTo,
-        minDate: this._state.dateFromObject,
+        minDate: dateFromObject,
         onChange: this.#dateToChangeHandler,
       },
     );
