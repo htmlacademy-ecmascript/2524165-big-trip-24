@@ -8,6 +8,8 @@ import he from 'he';
 
 import 'flatpickr/dist/flatpickr.min.css';
 
+const SAME_DATE_OFFSET_IN_MINUTES = 5;
+
 function createFormEditEventTemplate (event, eventTypeOffers, eventDestination, destinations) {
   const { basePrice, dateFrom, dateTo, offers: eventOffers, type, isDeleting, isSaving, isDisabled } = event;
   const { name, description, pictures } = eventDestination;
@@ -251,6 +253,9 @@ export default class FormEditEventView extends AbstractStatefulView {
   }
 
   #setDatepicker() {
+    const dateFromObject = new Date(this._state.dateFrom);
+    dateFromObject.setMinutes(dateFromObject.getMinutes() + SAME_DATE_OFFSET_IN_MINUTES);
+
     this.#datepickerFrom = flatpickr(
       this.element.querySelector('.event__input--time[id="event-start-time-1"'),
       {
@@ -272,7 +277,7 @@ export default class FormEditEventView extends AbstractStatefulView {
         time_24hr: true,
         /* eslint-enable */
         defaultDate: this._state.dateTo,
-        minDate: this._state.dateFrom,
+        minDate: dateFromObject,
         onChange: this.#dateToChangeHandler,
       },
     );
@@ -319,7 +324,10 @@ export default class FormEditEventView extends AbstractStatefulView {
 
   #dateFromChangeHandler = ([dateFrom]) => {
     if (dayjs(this._state.dateTo).diff(dateFrom, 'minutes') < 0) {
-      this.updateElement({...this._state, dateFrom: dateFrom, dateTo: dateFrom});
+      const dateTo = new Date(dateFrom);
+      dateTo.setMinutes(dateTo.getMinutes() + SAME_DATE_OFFSET_IN_MINUTES);
+
+      this.updateElement({...this._state, dateFrom: dateFrom, dateTo: dateTo});
     } else {
       this.updateElement({...this._state, dateFrom: dateFrom});
     }
