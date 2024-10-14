@@ -34,17 +34,21 @@ export default class BoardPresenter {
   #isNewEventFormVisible = false;
   #isLoading = true;
 
+  #handleToggleNewEventButton = null;
+
   #uiBlocker = new UiBlocker({
     lowerLimit: TimeLimit.LOWER_LIMIT,
     upperLimit: TimeLimit.UPPER_LIMIT
   });
 
-  constructor(eventsContainer, tripModel, filterModel, offersModel, destinationsModel) {
+  constructor(eventsContainer, tripModel, filterModel, offersModel, destinationsModel, toggleNewEventButton) {
     this.#eventsContainer = eventsContainer;
     this.#tripModel = tripModel;
     this.#filterModel = filterModel;
     this.#offersModel = offersModel;
     this.#destinationsModel = destinationsModel;
+
+    this.#handleToggleNewEventButton = toggleNewEventButton;
 
     this.#tripModel.addObserver(this.#handleModelChange);
     this.#filterModel.addObserver(this.#handleModelChange);
@@ -84,6 +88,7 @@ export default class BoardPresenter {
       this.#filterModel.setFilter(UpdateTypes.MAJOR, FilterTypes.EVERYTHING);
 
       this.#newEventPresenter = new NewEventPresenter(this.#eventListComponent.element, this.#handleViewAction, this.offers, this.destinations, this.#handleNewEventClose);
+      this.#handleToggleNewEventButton(false);
 
       remove(this.#emptyListComponent);
     } else {
@@ -231,6 +236,7 @@ export default class BoardPresenter {
   };
 
   #handleNewEventClose = () => {
+    this.#handleToggleNewEventButton(true);
     this.#renderEmptyEventsList();
   };
 }
