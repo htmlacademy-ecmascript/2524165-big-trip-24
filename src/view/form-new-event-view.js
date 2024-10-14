@@ -158,15 +158,16 @@ function createDestinationSection(description, pictures) {
     picturesArray.push(picture);
   }
   const destinationPictures = picturesArray.join('\n');
+  const photosContainerTemplate = `<div class="event__photos-container">
+                                    <div class="event__photos-tape">
+                                      ${destinationPictures}
+                                    </div>
+                                  </div>`;
 
   return `<section class="event__section  event__section--destination">
             <h3 class="event__section-title  event__section-title--destination">Destination</h3>
             <p class="event__destination-description">${description}</p>
-            <div class="event__photos-container">
-              <div class="event__photos-tape">
-                ${destinationPictures}
-              </div>
-            </div>
+            ${destinationPictures ? photosContainerTemplate : ''}
           </section>`;
 }
 
