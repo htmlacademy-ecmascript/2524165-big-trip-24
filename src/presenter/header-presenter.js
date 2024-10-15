@@ -43,12 +43,13 @@ export default class HeaderPresenter {
   }
 
   init() {
+    const prevHeaderComponent = this.#headerComponent;
+
     const events = this.events;
     if (events.length === 0) {
+      remove(this.#headerComponent);
       return;
     }
-
-    const prevHeaderComponent = this.#headerComponent;
 
     this.#summarizeEventsData(events);
 
