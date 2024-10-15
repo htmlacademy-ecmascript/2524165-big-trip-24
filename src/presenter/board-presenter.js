@@ -88,7 +88,7 @@ export default class BoardPresenter {
       this.#currentSortType = SortType.DAY;
       this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
 
-      this.#newEventPresenter = new NewEventPresenter(this.#eventListComponent.element, this.offers, this.destinations, this.#onNewEventClose, this.#onModelChange);
+      this.#newEventPresenter = new NewEventPresenter(this.#eventListComponent.element, this.#onNewEventClose, this.#onViewAction, this.offers, this.destinations);
       this.#handleToggleNewEventButton(false);
 
       remove(this.#emptyListComponent);

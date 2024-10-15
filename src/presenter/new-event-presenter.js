@@ -12,7 +12,7 @@ export default class NewEventPresenter {
   #dataChangeHandler = null;
   #newEventCloseHandler = null;
 
-  constructor(eventContainer, offers, destinations, onNewEventClose, onDataChange) {
+  constructor(eventContainer, onNewEventClose, onDataChange, offers, destinations) {
     this.#eventContainer = eventContainer;
     this.#offers = offers;
     this.#destinations = destinations;
@@ -24,7 +24,7 @@ export default class NewEventPresenter {
     const prevNewEventComponent = this.#newEventComponent;
 
     if (prevNewEventComponent === null) {
-      this.#newEventComponent = new FormNewEventView(this.#onFormSubmit, this.#onCancelButtonClick, this.#offers, this.#destinations, this);
+      this.#newEventComponent = new FormNewEventView(this.#onFormSubmit, this.#onCancelButtonClick, this.#offers, this.#destinations);
       render(this.#newEventComponent, this.#eventContainer, RenderPosition.AFTERBEGIN);
 
       document.addEventListener('keydown', this.#onEscKeyDown);
