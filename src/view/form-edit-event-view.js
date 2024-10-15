@@ -113,7 +113,7 @@ function createOffersSection(eventTypeOffers, eventOffers, isDisabled) {
   for (let i = 0; i < eventTypeOffers.length; i++) {
     const offerTitle = eventTypeOffers[i].title;
     const offerPrice = eventTypeOffers[i].price;
-    const offerName = offerTitle.replace(/\s+/g, '').toLowerCase();
+    const offerName = offerTitle.replace(/\s+/g, '-').toLowerCase();
     const offerIsChecked = eventOffers.has(eventTypeOffers[i].id) ? 'checked' : '';
 
     const offerSelector = `<div class="event__offer-selector">
@@ -307,18 +307,18 @@ export default class FormEditEventView extends AbstractStatefulView {
   };
 
   #offerClickHandler = (evt) => {
-    if (evt.target.matches('.event__offer-checkbox')) {
-      const offers = this._state.offers;
-      const targetID = evt.target.dataset.id;
+    const inputElement = evt.target.previousElementSibling ? evt.target.previousElementSibling : evt.target.parentElement.previousElementSibling;
 
-      if (offers.has(targetID)) {
-        offers.delete(targetID);
-      } else {
-        offers.add(targetID);
-      }
+    const offers = this._state.offers;
+    const targetID = inputElement.dataset.id;
 
-      this.updateElement({...this._state});
+    if (offers.has(targetID)) {
+      offers.delete(targetID);
+    } else {
+      offers.add(targetID);
     }
+
+    this.updateElement({...this._state});
   };
 
   #dateFromChangeHandler = ([dateFrom]) => {
