@@ -35,7 +35,7 @@ function createFormAddEventTemplate (event, eventTypeOffers, eventDestination, d
                   ${createPriceFieldGroup(basePrice, isDisabled)}
 
                   <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? 'disabled' : ''}>${isSaving ? 'Saving...' : 'Save'}</button>
-                  <button class="event__reset-btn" type="reset" ${isDisabled ? 'disabled' : ''}>Cancel</button>
+                  <button class="event__reset-btn" type="reset">Cancel</button>
 
                 </header>
                 <section class="event__details">
