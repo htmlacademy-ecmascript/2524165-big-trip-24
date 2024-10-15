@@ -1,9 +1,8 @@
 import { render, replace, remove, RenderPosition } from '../framework/render';
 import { sortByDay } from '../utilities/event';
-import { DateFormats } from '../constants';
+import { DateFormat } from '../constants';
 import { formatDate } from '../utilities/event';
 import HeaderView from '../view/header-view';
-
 
 export default class HeaderPresenter {
   #tripModel = null;
@@ -12,7 +11,7 @@ export default class HeaderPresenter {
   #headerContainer = null;
   #headerComponent = null;
 
-  #destinationNames = null;
+  #tripDestinations = null;
   #totalPrice = null;
   #dateStart = null;
   #dateEnd = null;
@@ -23,7 +22,7 @@ export default class HeaderPresenter {
     this.#destinationsModel = destinationsModel;
     this.#headerContainer = headerContainer;
 
-    this.#tripModel.addObserver(this.#handleModelEvent);
+    this.#tripModel.addObserver(this.#onModelEvent);
   }
 
   get events () {
@@ -43,13 +42,17 @@ export default class HeaderPresenter {
   }
 
   init() {
-    const events = this.events;
-
     const prevHeaderComponent = this.#headerComponent;
+
+    const events = this.events;
+    if (events.length === 0) {
+      remove(this.#headerComponent);
+      return;
+    }
 
     this.#summarizeEventsData(events);
 
-    this.#headerComponent = new HeaderView(this.#destinationNames, this.#totalPrice, this.#dateStart, this.#dateEnd);
+    this.#headerComponent = new HeaderView(this.#tripDestinations, this.#totalPrice, this.#dateStart, this.#dateEnd);
 
     if (prevHeaderComponent === null) {
       render(this.#headerComponent, this.#headerContainer, RenderPosition.AFTERBEGIN);
@@ -61,14 +64,14 @@ export default class HeaderPresenter {
   }
 
   #summarizeEventsData (events) {
-    const destinationSet = new Set();
-    events.forEach((event) => destinationSet.add(this.#getEventDestinationName(event)));
-    this.#destinationNames = Array.from(destinationSet);
+    const tripDestinations = new Set();
+    events.forEach((event) => tripDestinations.add(this.#getEventDestinationName(event)));
+    this.#tripDestinations = Array.from(tripDestinations);
 
     this.#totalPrice = this.#getEventsTotalPrice(events);
 
-    this.#dateStart = formatDate(events.at(0).dateFrom, DateFormats.MONTHDAY_NOSLASH);
-    this.#dateEnd = formatDate(events.at(-1).dateTo, DateFormats.MONTHDAY_NOSLASH);
+    this.#dateStart = formatDate(events.at(0).dateFrom, DateFormat.MONTHDAY_NOSLASH);
+    this.#dateEnd = formatDate(events.at(-1).dateTo, DateFormat.MONTHDAY_NOSLASH);
   }
 
   #getEventsTotalPrice (events) {
@@ -102,7 +105,7 @@ export default class HeaderPresenter {
     return eventDestination.name;
   }
 
-  #handleModelEvent = () => {
+  #onModelEvent = () => {
     this.init();
   };
 

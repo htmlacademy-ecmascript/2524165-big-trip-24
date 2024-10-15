@@ -1,5 +1,5 @@
 import AbstractView from '../framework/view/abstract-view';
-import { SortTypes } from '../constants';
+import { SortType } from '../constants';
 
 function createSortItemTemplate (sortType, currentSortType, isSortItemDisabled = false) {
   const sortItemName = sortType.at(0).toUpperCase() + sortType.slice(1);
@@ -14,30 +14,30 @@ function createSortItemTemplate (sortType, currentSortType, isSortItemDisabled =
 
 function createListSortTemplate (currentSortType) {
   return `<form class="trip-events__trip-sort  trip-sort" action="#" method="get">
-            ${createSortItemTemplate(SortTypes.DAY, currentSortType)}
+            ${createSortItemTemplate(SortType.DAY, currentSortType)}
             ${createSortItemTemplate('event', currentSortType, true)}
-            ${createSortItemTemplate(SortTypes.TIME, currentSortType)}
-            ${createSortItemTemplate(SortTypes.PRICE, currentSortType)}
+            ${createSortItemTemplate(SortType.TIME, currentSortType)}
+            ${createSortItemTemplate(SortType.PRICE, currentSortType)}
             ${createSortItemTemplate('offers', currentSortType, true)}
           </form>`;
 }
 
 export default class SortListView extends AbstractView {
   #handleSortButtonClick = null;
-  #currentSortType = SortTypes.DAY;
+  #currentSortType = SortType.DAY;
 
   constructor (onSortButtonClick, currentSortType) {
     super();
     this.#handleSortButtonClick = onSortButtonClick;
     this.#currentSortType = currentSortType;
-    this.element.addEventListener('change', this.#sortButtonClickHandler);
+    this.element.addEventListener('change', this.#onSortButtonClick);
   }
 
   get template() {
     return createListSortTemplate(this.#currentSortType);
   }
 
-  #sortButtonClickHandler = (evt) => {
+  #onSortButtonClick = (evt) => {
     this.#handleSortButtonClick(evt.target.dataset.sortType);
   };
 
