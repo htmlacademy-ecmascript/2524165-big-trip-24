@@ -1,27 +1,33 @@
+import { UpdateType } from '../constants.js';
 import Observable from '../framework/observable.js';
-import { UpdateTypes } from '../constants.js';
 
 export default class TripModel extends Observable {
   #events = [];
   #tripApiService = null;
+  #offersModel = null;
+  #destinationsModel = null;
 
-  constructor (tripApiService) {
+  constructor (tripApiService, offersModel, destinationsModel) {
     super();
     this.#tripApiService = tripApiService;
-  }
-
-  async init () {
-    try {
-      const events = await this.#tripApiService.events;
-      this.#events = events.map(this.#adaptEventToClient);
-    } catch (err) {
-      this.#events = [];
-    }
-    this._notify(UpdateTypes.INIT);
+    this.#offersModel = offersModel;
+    this.#destinationsModel = destinationsModel;
   }
 
   get events() {
     return this.#events;
+  }
+
+  async init () {
+    try {
+      await Promise.all([this.#offersModel.init(), this.#destinationsModel.init()]);
+      const events = await this.#tripApiService.events;
+      this.#events = events.map(this.#adaptEventToClient);
+      this._notify(UpdateType.INIT);
+    } catch (err) {
+      this.#events = [];
+      this._notify(UpdateType.ERROR);
+    }
   }
 
   async updateEvent (updateType, update) {

@@ -1,9 +1,9 @@
 import AbstractView from '../framework/view/abstract-view';
 import { formatDate, getTimeFromTo } from '../utilities/event';
-import { DateFormats } from '../constants';
+import { DateFormat } from '../constants';
 
 function createOffersList(offersList, eventOffers) {
-  const offersArray = [];
+  const selectedOffers = [];
   for (let i = 0; i < offersList.length; i++) {
     if (!eventOffers.has(offersList[i].id)) {
       continue;
@@ -13,12 +13,12 @@ function createOffersList(offersList, eventOffers) {
                       &plus;&euro;&nbsp;
                       <span class="event__offer-price">${offersList[i].price}</span>
                     </li>`;
-    offersArray.push(selectedOffer);
+    selectedOffers.push(selectedOffer);
   }
-  const selectedOffers = offersArray.join('\n');
+  const selectedOffersResult = selectedOffers.join('\n');
   return `<h4 class="visually-hidden">Offers:</h4>
             <ul class="event__selected-offers">
-              ${selectedOffers}
+              ${selectedOffersResult}
             </ul>`;
 }
 
@@ -30,9 +30,11 @@ function createListItemPointTemplate (event, offersList, destinationName) {
 
   const favoriteButtonActive = isFavorite ? 'event__favorite-btn--active' : '';
   const typeIconName = type.toLowerCase();
-  const formattedHoursDateFrom = dateFrom ? formatDate(dateFrom, DateFormats.HOURS) : '';
-  const formattedHoursDateTo = dateTo ? formatDate(dateTo, DateFormats.HOURS) : '';
-  const formattedMonthDateFrom = dateFrom ? formatDate(dateFrom, DateFormats.MONTHDAY) : '';
+
+  const formattedHoursDateFrom = dateFrom ? formatDate(dateFrom, DateFormat.HOURS) : '';
+  const formattedHoursDateTo = dateTo ? formatDate(dateTo, DateFormat.HOURS) : '';
+  const formattedMonthDateFrom = dateFrom ? formatDate(dateFrom, DateFormat.MONTHDAY) : '';
+
   let formattedDateFromTo = '';
   if (dateFrom && dateTo) {
     formattedDateFromTo = getTimeFromTo(dateFrom, dateTo);
@@ -90,9 +92,9 @@ export default class EventView extends AbstractView {
     this.#getDestination(this.#event.destination);
 
     this.#handleEditButtonClick = onEditButtonClick;
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editButtonClickHandler);
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#onEditButtonClick);
     this.#handleFavoriteButtonClick = onFavoriteButtonClick;
-    this.element.querySelector('.event__favorite-btn').addEventListener('click', this.#favoriteButtonClickHandler);
+    this.element.querySelector('.event__favorite-btn').addEventListener('click', this.#onFavoriteButtonClick);
   }
 
   get template() {
@@ -109,11 +111,11 @@ export default class EventView extends AbstractView {
     this.#eventDestination = destination;
   }
 
-  #editButtonClickHandler = () => {
+  #onEditButtonClick = () => {
     this.#handleEditButtonClick();
   };
 
-  #favoriteButtonClickHandler = () => {
+  #onFavoriteButtonClick = () => {
     this.#handleFavoriteButtonClick();
   };
 

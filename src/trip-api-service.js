@@ -1,13 +1,13 @@
 import ApiService from './framework/api-service';
 
-const Methods = {
+const Method = {
   GET: 'GET',
   PUT: 'PUT',
   POST: 'POST',
   DELETE: 'DELETE',
 };
 
-const DataTypes = {
+const DataType = {
   EVENTS: 'points',
   OFFERS: 'offers',
   DESTINATIONS: 'destinations',
@@ -15,26 +15,21 @@ const DataTypes = {
 
 export default class TripApiService extends ApiService {
   get events () {
-    return this.#loadDataByType(DataTypes.EVENTS);
+    return this.#loadDataByType(DataType.EVENTS);
   }
 
   get offers () {
-    return this.#loadDataByType(DataTypes.OFFERS);
+    return this.#loadDataByType(DataType.OFFERS);
   }
 
   get destinations () {
-    return this.#loadDataByType(DataTypes.DESTINATIONS);
-  }
-
-  #loadDataByType (type) {
-    return this._load({url: type})
-      .then(ApiService.parseResponse);
+    return this.#loadDataByType(DataType.DESTINATIONS);
   }
 
   async updateEvent (event) {
     const response = await this._load({
-      url: `${DataTypes.EVENTS}/${event.id}`,
-      method: Methods.PUT,
+      url: `${DataType.EVENTS}/${event.id}`,
+      method: Method.PUT,
       body: JSON.stringify(this.#adaptEventForServer(event)),
       headers: new Headers({'Content-Type': 'application/json'}),
     });
@@ -46,8 +41,8 @@ export default class TripApiService extends ApiService {
 
   async addEvent (event) {
     const response = await this._load({
-      url: `${DataTypes.EVENTS}`,
-      method: Methods.POST,
+      url: `${DataType.EVENTS}`,
+      method: Method.POST,
       body: JSON.stringify(this.#adaptEventForServer(event)),
       headers: new Headers({'Content-Type': 'application/json'}),
     });
@@ -59,8 +54,8 @@ export default class TripApiService extends ApiService {
 
   async deleteEvent (event) {
     const response = await this._load({
-      url: `${DataTypes.EVENTS}/${event.id}`,
-      method: Methods.DELETE,
+      url: `${DataType.EVENTS}/${event.id}`,
+      method: Method.DELETE,
     });
 
     return response;
@@ -84,5 +79,10 @@ export default class TripApiService extends ApiService {
     delete adaptedEvent.isFavorite;
 
     return adaptedEvent;
+  }
+
+  #loadDataByType (type) {
+    return this._load({url: type})
+      .then(ApiService.parseResponse);
   }
 }

@@ -1,4 +1,4 @@
-export default class DestinationsModel{
+export default class DestinationsModel {
   #destinations = [];
   #tripApiService = null;
 
@@ -15,7 +15,7 @@ export default class DestinationsModel{
     }
   }
 
-  get destinations() {
+  get destinations () {
     return this.#destinations;
   }
 

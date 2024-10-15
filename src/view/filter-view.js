@@ -12,14 +12,14 @@ function createFilterElement(filter, currentFilterType) {
 }
 
 function createFilterListTemplate (filters, currentFilterType) {
-  const filterElementsArray = [];
+  const filterElements = [];
   for (let i = 0; i < filters.length; i++) {
     const filterElement = createFilterElement(filters[i], currentFilterType);
-    filterElementsArray.push(filterElement);
+    filterElements.push(filterElement);
   }
-  const filterElements = filterElementsArray.join('\n');
+  const filterElementsResult = filterElements.join('\n');
   return `<form class="trip-filters" action="#" method="get">
-            ${filterElements}
+            ${filterElementsResult}
             <button class="visually-hidden" type="submit">Accept filter</button>
           </form>`;
 }
@@ -35,14 +35,14 @@ export default class FilterView extends AbstractView {
     this.#currentFilter = currentFilterType;
     this.#handleFilterTypeChange = onFilterTypeChange;
 
-    this.element.addEventListener('change', this.#filterTypeChangeHandler);
+    this.element.addEventListener('change', this.#onFilterTypeChange);
   }
 
   get template() {
     return createFilterListTemplate(this.#filters, this.#currentFilter);
   }
 
-  #filterTypeChangeHandler = (evt) => {
+  #onFilterTypeChange = (evt) => {
     evt.preventDefault();
     this.#handleFilterTypeChange(evt.target.value);
   };

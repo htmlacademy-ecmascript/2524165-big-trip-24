@@ -1,7 +1,7 @@
 import { render, remove, RenderPosition } from '../framework/render.js';
 import { sortByDay, sortByPrice, sortByTime } from '../utilities/event.js';
-import { SortTypes, ActionTypes, UpdateTypes, FilterTypes } from '../constants.js';
-import { Filters } from '../utilities/filter.js';
+import { SortType, ActionType, UpdateType, FilterType } from '../constants.js';
+import { Filter } from '../utilities/filter.js';
 import SortView from '../view/sort-view.js';
 import EventListView from '../view/event-list-view.js';
 import EventListEmptyView from '../view/event-list-empty-view.js';
@@ -22,49 +22,50 @@ export default class BoardPresenter {
   #offersModel = null;
   #destinationsModel = null;
   #eventsContainer = null;
-  #eventListComponent = new EventListView();
   #sortListComponent = null;
   #emptyListComponent = null;
+  #eventListComponent = new EventListView();
   #loadingComponent = new LoadingView();
   #errorComponent = new ErrorView();
   #eventPresenters = new Map();
   #newEventPresenter = null;
-  #currentSortType = SortTypes.DAY;
+
+  #currentSortType = SortType.DAY;
 
   #isNewEventFormVisible = false;
   #isLoading = true;
+
+  #handleToggleNewEventButton = null;
 
   #uiBlocker = new UiBlocker({
     lowerLimit: TimeLimit.LOWER_LIMIT,
     upperLimit: TimeLimit.UPPER_LIMIT
   });
 
-  constructor(eventsContainer, tripModel, filterModel, offersModel, destinationsModel) {
+  constructor (eventsContainer, tripModel, filterModel, offersModel, destinationsModel, onToggleNewEventButton) {
     this.#eventsContainer = eventsContainer;
     this.#tripModel = tripModel;
     this.#filterModel = filterModel;
     this.#offersModel = offersModel;
     this.#destinationsModel = destinationsModel;
 
-    this.#tripModel.addObserver(this.#handleModelChange);
-    this.#filterModel.addObserver(this.#handleModelChange);
-  }
+    this.#handleToggleNewEventButton = onToggleNewEventButton;
 
-  init() {
-    this.#renderBoard();
+    this.#tripModel.addObserver(this.#onModelChange);
+    this.#filterModel.addObserver(this.#onModelChange);
   }
 
   get events () {
     const filterType = this.#filterModel.filter;
     const events = this.#tripModel.events;
-    const filteredTasks = Filters[filterType](events);
+    const filteredTasks = Filter[filterType](events);
 
     switch (this.#currentSortType) {
-      case SortTypes.DAY:
+      case SortType.DAY:
         return filteredTasks.sort(sortByDay);
-      case SortTypes.PRICE:
+      case SortType.PRICE:
         return filteredTasks.sort(sortByPrice);
-      case SortTypes.TIME:
+      case SortType.TIME:
         return filteredTasks.sort(sortByTime);
     }
     return filteredTasks;
@@ -78,40 +79,46 @@ export default class BoardPresenter {
     return this.#destinationsModel.destinations;
   }
 
+  init () {
+    this.#renderBoard();
+  }
+
   createEvent () {
     if (!this.#isNewEventFormVisible) {
-      this.#currentSortType = SortTypes.DAY;
-      this.#filterModel.setFilter(UpdateTypes.MAJOR, FilterTypes.EVERYTHING);
+      this.#currentSortType = SortType.DAY;
+      this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
 
-      this.#newEventPresenter = new NewEventPresenter(this.#eventListComponent.element, this.#handleViewAction, this.offers, this.destinations);
+      this.#newEventPresenter = new NewEventPresenter(this.#eventListComponent.element, this.#onNewEventClose, this.#onViewAction, this.offers, this.destinations);
+      this.#handleToggleNewEventButton(false);
 
       remove(this.#emptyListComponent);
     } else {
       this.#renderEmptyEventsList();
     }
+
     this.#isNewEventFormVisible = !this.#isNewEventFormVisible;
     this.#newEventPresenter.init();
   }
 
-  showError () {
-    this.#clearBoard();
-    render(this.#errorComponent, this.#eventsContainer);
-  }
-
   #renderEmptyEventsList () {
     if (this.events.length === 0) {
+      this.#clearBoard();
       this.#emptyListComponent = new EventListEmptyView(this.#filterModel.filter);
       render(this.#emptyListComponent, this.#eventsContainer);
     }
   }
 
   #renderSortView () {
-    this.#sortListComponent = new SortView(this.#handleSortChange, this.#currentSortType);
+    this.#sortListComponent = new SortView(this.#onSortChange, this.#currentSortType);
     render(this.#sortListComponent, this.#eventsContainer, RenderPosition.AFTERBEGIN);
   }
 
   #renderLoading () {
     render(this.#loadingComponent, this.#eventsContainer);
+  }
+
+  #renderError () {
+    render(this.#errorComponent, this.#eventsContainer);
   }
 
   #renderBoard () {
@@ -126,10 +133,13 @@ export default class BoardPresenter {
     const eventsCount = events.length;
 
     this.#renderEmptyEventsList();
-    this.#renderSortView();
+
+    if (eventsCount > 0) {
+      this.#renderSortView();
+    }
 
     for (let i = 0; i < eventsCount; i++) {
-      const eventPresenter = new EventPresenter(this.#eventListComponent.element, this.#handleViewAction, this.#handleModeChange, this.offers, this.destinations);
+      const eventPresenter = new EventPresenter(this.#eventListComponent.element, this.#onViewAction, this.#onViewModeChange, this.offers, this.destinations);
       eventPresenter.init(this.events[i]);
       this.#eventPresenters.set(this.events[i].id, eventPresenter);
     }
@@ -147,11 +157,11 @@ export default class BoardPresenter {
     remove(this.#emptyListComponent);
 
     if (resetSortType) {
-      this.#currentSortType = SortTypes.DAY;
+      this.#currentSortType = SortType.DAY;
     }
   }
 
-  #handleModeChange = () => {
+  #onViewModeChange = () => {
     if (this.#isNewEventFormVisible) {
       this.#newEventPresenter.destroy();
       this.#isNewEventFormVisible = !this.#isNewEventFormVisible;
@@ -159,7 +169,7 @@ export default class BoardPresenter {
     this.#eventPresenters.forEach((presenter) => presenter.resetView());
   };
 
-  #handleSortChange = (sortType) => {
+  #onSortChange = (sortType) => {
     if (this.#currentSortType === sortType) {
       return;
     }
@@ -168,11 +178,11 @@ export default class BoardPresenter {
     this.#renderBoard();
   };
 
-  #handleViewAction = async (actionType, updateType, update) => {
+  #onViewAction = async (actionType, updateType, update) => {
     this.#uiBlocker.block();
 
     switch (actionType) {
-      case ActionTypes.ADD_TRIP:
+      case ActionType.ADD_TRIP:
         this.#newEventPresenter.setSaving();
         try {
           await this.#tripModel.addEvent(updateType, update);
@@ -181,7 +191,7 @@ export default class BoardPresenter {
         }
         break;
 
-      case ActionTypes.UPDATE_TRIP:
+      case ActionType.UPDATE_TRIP:
         this.#eventPresenters.get(update.id).setSaving();
         try {
           await this.#tripModel.updateEvent(updateType, update);
@@ -190,7 +200,7 @@ export default class BoardPresenter {
         }
         break;
 
-      case ActionTypes.DELETE_TRIP:
+      case ActionType.DELETE_TRIP:
         this.#eventPresenters.get(update.id).setDeleting();
         try {
           await this.#tripModel.deleteEvent(updateType, update);
@@ -203,25 +213,34 @@ export default class BoardPresenter {
     this.#uiBlocker.unblock();
   };
 
-  #handleModelChange = (updateType, update) => {
+  #onModelChange = (updateType, update) => {
     switch (updateType) {
-      case UpdateTypes.PATCH:
+      case UpdateType.PATCH:
         this.#eventPresenters.get(update.id).init(update);
         break;
-      case UpdateTypes.MINOR:
+      case UpdateType.MINOR:
         this.#clearBoard();
         this.#renderBoard();
         break;
-      case UpdateTypes.MAJOR:
-        this.#clearBoard();
+      case UpdateType.MAJOR:
+        this.#clearBoard(true);
         this.#renderBoard();
         break;
-      case UpdateTypes.INIT:
+      case UpdateType.INIT:
         this.#isLoading = false;
         remove(this.#loadingComponent);
         this.#renderBoard();
         break;
+      case UpdateType.ERROR:
+        this.#isLoading = false;
+        remove(this.#loadingComponent);
+        this.#renderError();
+        break;
     }
   };
 
+  #onNewEventClose = () => {
+    this.#handleToggleNewEventButton(true);
+    this.#renderEmptyEventsList();
+  };
 }

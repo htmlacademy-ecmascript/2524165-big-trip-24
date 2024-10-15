@@ -1,19 +1,19 @@
 import AbstractView from '../framework/view/abstract-view';
-import { FilterTypes } from '../constants';
+import { FilterType } from '../constants';
 
 function createEventListEmptyTemplate (filterType) {
   let emptyListMessage = null;
   switch (filterType) {
-    case FilterTypes.EVERYTHING:
+    case FilterType.EVERYTHING:
       emptyListMessage = 'Click New Event to create your first point';
       break;
-    case FilterTypes.FUTURE:
+    case FilterType.FUTURE:
       emptyListMessage = 'There are no future events now';
       break;
-    case FilterTypes.PAST:
+    case FilterType.PAST:
       emptyListMessage = 'There are no past events now';
       break;
-    case FilterTypes.PRESENT:
+    case FilterType.PRESENT:
       emptyListMessage = 'There are no present events now';
       break;
     default:

@@ -1,4 +1,4 @@
-export default class OffersModel{
+export default class OffersModel {
   #offers = [];
   #tripApiService = null;
 
@@ -13,10 +13,9 @@ export default class OffersModel{
     } catch (err) {
       this.#offers = [];
     }
-
   }
 
-  get offers() {
+  get offers () {
     return this.#offers;
   }
 

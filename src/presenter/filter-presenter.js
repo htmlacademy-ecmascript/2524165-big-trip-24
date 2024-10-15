@@ -1,7 +1,7 @@
-import FilterView from '../view/filter-view';
 import { render, replace, remove } from '../framework/render';
-import { Filters } from '../utilities/filter';
-import { UpdateTypes } from '../constants';
+import { Filter } from '../utilities/filter';
+import { UpdateType } from '../constants';
+import FilterView from '../view/filter-view';
 
 export default class FilterPresenter {
   #tripModel = null;
@@ -14,13 +14,13 @@ export default class FilterPresenter {
     this.#filterModel = filtersModel;
     this.#tripModel = tripModel;
 
-    this.#tripModel.addObserver(this.#handleModelEvent);
-    this.#filterModel.addObserver(this.#handleModelEvent);
+    this.#tripModel.addObserver(this.#onModelEvent);
+    this.#filterModel.addObserver(this.#onModelEvent);
   }
 
   get filters () {
     const events = this.#tripModel.events;
-    return Object.entries(Filters).map(([filterType, filterFunc]) => ({
+    return Object.entries(Filter).map(([filterType, filterFunc]) => ({
       type: filterType,
       count: filterFunc(events).length,
     }));
@@ -30,7 +30,7 @@ export default class FilterPresenter {
     const filters = this.filters;
     const prevFilterComponent = this.#filterComponent;
 
-    this.#filterComponent = new FilterView(filters, this.#filterModel.filter, this.#handleFilterTypeChange);
+    this.#filterComponent = new FilterView(filters, this.#filterModel.filter, this.#onFilterTypeChange);
 
     if (prevFilterComponent === null) {
       render(this.#filterComponent, this.#filterContainer);
@@ -41,16 +41,16 @@ export default class FilterPresenter {
     remove(prevFilterComponent);
   }
 
-  #handleModelEvent = () => {
+  #onModelEvent = () => {
     this.init();
   };
 
-  #handleFilterTypeChange = (filterType) => {
+  #onFilterTypeChange = (filterType) => {
     if (this.#filterModel.filter === filterType) {
       return;
     }
 
-    this.#filterModel.setFilter(UpdateTypes.MAJOR, filterType);
+    this.#filterModel.setFilter(UpdateType.MAJOR, filterType);
   };
 
 }
