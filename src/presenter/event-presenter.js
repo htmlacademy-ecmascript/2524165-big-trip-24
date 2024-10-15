@@ -90,6 +90,7 @@ export default class EventPresenter {
   }
 
   destroy () {
+    document.removeEventListener('keydown', this.#escKeyDownHandler);
     remove(this.#eventComponent);
     remove(this.#eventEditComponent);
   }
@@ -115,7 +116,6 @@ export default class EventPresenter {
 
   #onFormSubmit = (updatedEvent) => {
     this.#dataChangeHandler(ActionTypes.UPDATE_TRIP, UpdateTypes.MINOR, updatedEvent);
-    document.removeEventListener('keydown', this.#escKeyDownHandler);
   };
 
   #onDeleteButtonClick = () => {
