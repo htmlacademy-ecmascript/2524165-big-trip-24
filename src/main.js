@@ -19,9 +19,9 @@ const tripEventsContainerElement = document.querySelector('.trip-events');
 const headerContainerElement = document.querySelector('.trip-main');
 const newEventButtonContainerElement = document.querySelector('.trip-main');
 const filterModel = new FilterModel();
-const tripModel = new TripModel(tripApiService);
 const offersModel = new OffersModel(tripApiService);
 const destinationsModel = new DestinationsModel(tripApiService);
+const tripModel = new TripModel(tripApiService, offersModel, destinationsModel);
 const newEventButtonComponent = new NewEventButtonView(handleNewEventButtonClick);
 
 const filterPresenter = new FilterPresenter(filterContainerElement, filterModel, tripModel);
@@ -31,12 +31,10 @@ const headerPresenter = new HeaderPresenter(headerContainerElement, tripModel, o
 filterPresenter.init();
 boardPresenter.init();
 
-Promise.all([offersModel.init(), destinationsModel.init()]).then(() => {
-  tripModel.init().then(() => newEventButtonComponent.toggleButton(true)).catch(() => boardPresenter.showError()).finally(() => {
-    render(newEventButtonComponent, newEventButtonContainerElement);
-    newEventButtonComponent.init();
-    headerPresenter.init();
-  });
+tripModel.init().then(() => newEventButtonComponent.toggleButton(true)).finally(() => {
+  render(newEventButtonComponent, newEventButtonContainerElement);
+  newEventButtonComponent.init();
+  headerPresenter.init();
 });
 
 function toggleNewEventButton (isEnabled) {

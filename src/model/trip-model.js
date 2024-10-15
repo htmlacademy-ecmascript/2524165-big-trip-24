@@ -4,10 +4,14 @@ import { UpdateTypes } from '../constants.js';
 export default class TripModel extends Observable {
   #events = [];
   #tripApiService = null;
+  #offersModel = null;
+  #destinationsModel = null;
 
-  constructor (tripApiService) {
+  constructor (tripApiService, offersModel, destinationsModel) {
     super();
     this.#tripApiService = tripApiService;
+    this.#offersModel = offersModel;
+    this.#destinationsModel = destinationsModel;
   }
 
   get events() {
@@ -16,12 +20,14 @@ export default class TripModel extends Observable {
 
   async init () {
     try {
+      await Promise.all([this.#offersModel.init(), this.#destinationsModel.init()]);
       const events = await this.#tripApiService.events;
       this.#events = events.map(this.#adaptEventToClient);
+      this._notify(UpdateTypes.INIT);
     } catch (err) {
       this.#events = [];
+      this._notify(UpdateTypes.ERROR);
     }
-    this._notify(UpdateTypes.INIT);
   }
 
   async updateEvent (updateType, update) {

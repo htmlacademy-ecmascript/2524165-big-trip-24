@@ -49,6 +49,7 @@ const UpdateTypes = {
   MINOR: 'Minor',
   MAJOR: 'Major',
   INIT: 'Init',
+  ERROR: 'Error'
 };
 
 const SAME_DATE_OFFSET_IN_MINUTES = 5;

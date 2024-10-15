@@ -98,11 +98,6 @@ export default class BoardPresenter {
     this.#newEventPresenter.init();
   }
 
-  showError () {
-    this.#clearBoard();
-    render(this.#errorComponent, this.#eventsContainer);
-  }
-
   #renderEmptyEventsList () {
     if (this.events.length === 0) {
       this.#clearBoard();
@@ -118,6 +113,10 @@ export default class BoardPresenter {
 
   #renderLoading () {
     render(this.#loadingComponent, this.#eventsContainer);
+  }
+
+  #renderError () {
+    render(this.#errorComponent, this.#eventsContainer);
   }
 
   #renderBoard () {
@@ -231,6 +230,11 @@ export default class BoardPresenter {
         this.#isLoading = false;
         remove(this.#loadingComponent);
         this.#renderBoard();
+        break;
+      case UpdateTypes.ERROR:
+        this.#isLoading = false;
+        remove(this.#loadingComponent);
+        this.#renderError();
         break;
     }
   };
