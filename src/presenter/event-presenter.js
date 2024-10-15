@@ -1,7 +1,7 @@
 import { render, replace, remove } from '../framework/render.js';
 import { isEscKey } from '../utilities/util.js';
-import FormEditPointView from '../view/form-edit-event-view.js';
-import EventPointView from '../view/event-view.js';
+import FormEditEventView from '../view/form-edit-event-view.js';
+import EventView from '../view/event-view.js';
 import { ActionTypes, UpdateTypes } from '../constants.js';
 
 const Mode = {
@@ -35,8 +35,8 @@ export default class EventPresenter {
     const prevEventComponent = this.#eventComponent;
     const prevEventEditComponent = this.#eventEditComponent;
 
-    this.#eventComponent = new EventPointView(this.#event, this.#onEditButtonClick, this.#onFavoriteButtonClick, this.#offers, this.#destinations);
-    this.#eventEditComponent = new FormEditPointView(this.#event, this.#onFormSubmit, this.#onCloseButtonClick, this.#onDeleteButtonClick, this.#offers, this.#destinations);
+    this.#eventComponent = new EventView(this.#event, this.#onEditButtonClick, this.#onFavoriteButtonClick, this.#offers, this.#destinations);
+    this.#eventEditComponent = new FormEditEventView(this.#event, this.#onFormSubmit, this.#onCloseButtonClick, this.#onDeleteButtonClick, this.#offers, this.#destinations);
 
     if (prevEventComponent === null || prevEventEditComponent === null) {
       render(this.#eventComponent, this.#eventContainer);
@@ -59,6 +59,7 @@ export default class EventPresenter {
 
   resetView () {
     if (this.#mode !== Mode.DEFAULT) {
+      this.#eventEditComponent.reset(this.#event);
       this.#replaceFormToEvent();
     }
   }
