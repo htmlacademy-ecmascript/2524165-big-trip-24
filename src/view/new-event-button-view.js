@@ -8,24 +8,24 @@ export default class AddEventButtonView extends AbstractView {
   #handleClick = null;
   #isEnabled = false;
 
-  constructor (onClick) {
+  constructor (onButtonClick) {
     super();
-    this.#handleClick = onClick;
-  }
-
-  init () {
-    this.element.addEventListener('click', this.#clickHandler);
+    this.#handleClick = onButtonClick;
   }
 
   get template () {
     return createAddEventButtonTemplate(this.#isEnabled);
   }
 
+  init () {
+    this.element.addEventListener('click', this.#onButtonClick);
+  }
+
   toggleButton (isEnabled) {
     this.#isEnabled = isEnabled;
   }
 
-  #clickHandler = (evt) => {
+  #onButtonClick = (evt) => {
     evt.preventDefault();
     this.#handleClick();
   };

@@ -1,8 +1,8 @@
 import { render, replace, remove } from '../framework/render.js';
 import { isEscKey } from '../utilities/util.js';
+import { ActionType, UpdateType } from '../constants.js';
 import FormEditEventView from '../view/form-edit-event-view.js';
 import EventView from '../view/event-view.js';
-import { ActionTypes, UpdateTypes } from '../constants.js';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -90,43 +90,10 @@ export default class EventPresenter {
   }
 
   destroy () {
-    document.removeEventListener('keydown', this.#escKeyDownHandler);
+    document.removeEventListener('keydown', this.#onEscKeyDown);
     remove(this.#eventComponent);
     remove(this.#eventEditComponent);
   }
-
-  #escKeyDownHandler = (evt) => {
-    if (isEscKey(evt)) {
-      evt.preventDefault();
-      this.#eventEditComponent.reset(this.#event);
-      this.#replaceFormToEvent();
-      document.removeEventListener('keydown', this.#escKeyDownHandler);
-    }
-  };
-
-  #onEditButtonClick = () => {
-    this.#replaceEventToForm();
-    document.addEventListener('keydown', this.#escKeyDownHandler);
-  };
-
-  #onFavoriteButtonClick = () => {
-    const updatedEvent = {...this.#event, isFavorite: !this.#event.isFavorite};
-    this.#dataChangeHandler(ActionTypes.UPDATE_TRIP, UpdateTypes.PATCH, updatedEvent);
-  };
-
-  #onFormSubmit = (updatedEvent) => {
-    this.#dataChangeHandler(ActionTypes.UPDATE_TRIP, UpdateTypes.MINOR, updatedEvent);
-  };
-
-  #onDeleteButtonClick = () => {
-    this.#dataChangeHandler(ActionTypes.DELETE_TRIP, UpdateTypes.MINOR, this.#event);
-  };
-
-  #onCloseButtonClick = () => {
-    this.#eventEditComponent.reset(this.#event);
-    this.#replaceFormToEvent();
-    document.removeEventListener('keydown', this.#escKeyDownHandler);
-  };
 
   #replaceEventToForm () {
     replace(this.#eventEditComponent, this.#eventComponent);
@@ -138,6 +105,39 @@ export default class EventPresenter {
     replace(this.#eventComponent, this.#eventEditComponent);
     this.#mode = Mode.DEFAULT;
   }
+
+  #onEscKeyDown = (evt) => {
+    if (isEscKey(evt)) {
+      evt.preventDefault();
+      this.#eventEditComponent.reset(this.#event);
+      this.#replaceFormToEvent();
+      document.removeEventListener('keydown', this.#onEscKeyDown);
+    }
+  };
+
+  #onEditButtonClick = () => {
+    this.#replaceEventToForm();
+    document.addEventListener('keydown', this.#onEscKeyDown);
+  };
+
+  #onFavoriteButtonClick = () => {
+    const updatedEvent = {...this.#event, isFavorite: !this.#event.isFavorite};
+    this.#dataChangeHandler(ActionType.UPDATE_TRIP, UpdateType.PATCH, updatedEvent);
+  };
+
+  #onFormSubmit = (updatedEvent) => {
+    this.#dataChangeHandler(ActionType.UPDATE_TRIP, UpdateType.MINOR, updatedEvent);
+  };
+
+  #onDeleteButtonClick = () => {
+    this.#dataChangeHandler(ActionType.DELETE_TRIP, UpdateType.MINOR, this.#event);
+  };
+
+  #onCloseButtonClick = () => {
+    this.#eventEditComponent.reset(this.#event);
+    this.#replaceFormToEvent();
+    document.removeEventListener('keydown', this.#onEscKeyDown);
+  };
 
 }
 

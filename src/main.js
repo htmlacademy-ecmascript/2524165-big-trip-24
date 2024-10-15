@@ -1,3 +1,4 @@
+import { render, remove } from './framework/render.js';
 import BoardPresenter from './presenter/board-presenter.js';
 import FilterPresenter from './presenter/filter-presenter.js';
 import HeaderPresenter from './presenter/header-presenter.js';
@@ -7,43 +8,44 @@ import DestinationsModel from './model/destinations-model.js';
 import FilterModel from './model/filter-model.js';
 import NewEventButtonView from './view/new-event-button-view.js';
 import TripApiService from './trip-api-service.js';
-import { render, remove } from './framework/render.js';
 
 const AUTHORIZATION = 'Basic oe0w550dk29289a';
 const END_POINT = 'https://24.objects.htmlacademy.pro/big-trip';
 
 const tripApiService = new TripApiService(END_POINT, AUTHORIZATION);
 
-const filterContainerElement = document.querySelector('.trip-controls__filters');
-const tripEventsContainerElement = document.querySelector('.trip-events');
-const headerContainerElement = document.querySelector('.trip-main');
-const newEventButtonContainerElement = document.querySelector('.trip-main');
+const filterContainer = document.querySelector('.trip-controls__filters');
+const tripEventsContainer = document.querySelector('.trip-events');
+const headerContainer = document.querySelector('.trip-main');
+const newEventButtonContainer = document.querySelector('.trip-main');
+
 const filterModel = new FilterModel();
 const offersModel = new OffersModel(tripApiService);
 const destinationsModel = new DestinationsModel(tripApiService);
 const tripModel = new TripModel(tripApiService, offersModel, destinationsModel);
-const newEventButtonComponent = new NewEventButtonView(handleNewEventButtonClick);
 
-const filterPresenter = new FilterPresenter(filterContainerElement, filterModel, tripModel);
-const boardPresenter = new BoardPresenter(tripEventsContainerElement, tripModel, filterModel, offersModel, destinationsModel, toggleNewEventButton);
-const headerPresenter = new HeaderPresenter(headerContainerElement, tripModel, offersModel, destinationsModel);
+const newEventButtonComponent = new NewEventButtonView(onNewEventButtonClick);
+
+const filterPresenter = new FilterPresenter(filterContainer, filterModel, tripModel);
+const boardPresenter = new BoardPresenter(tripEventsContainer, tripModel, filterModel, offersModel, destinationsModel, onToggleNewEventButton);
+const headerPresenter = new HeaderPresenter(headerContainer, tripModel, offersModel, destinationsModel);
 
 filterPresenter.init();
 boardPresenter.init();
 
 tripModel.init().then(() => newEventButtonComponent.toggleButton(true)).finally(() => {
-  render(newEventButtonComponent, newEventButtonContainerElement);
+  render(newEventButtonComponent, newEventButtonContainer);
   newEventButtonComponent.init();
   headerPresenter.init();
 });
 
-function toggleNewEventButton (isEnabled) {
+function onToggleNewEventButton (isEnabled) {
   remove(newEventButtonComponent);
   newEventButtonComponent.toggleButton(isEnabled);
-  render(newEventButtonComponent, newEventButtonContainerElement);
+  render(newEventButtonComponent, newEventButtonContainer);
   newEventButtonComponent.init();
 }
 
-function handleNewEventButtonClick () {
+function onNewEventButtonClick () {
   boardPresenter.createEvent();
 }

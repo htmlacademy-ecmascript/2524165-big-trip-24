@@ -1,5 +1,5 @@
+import { UpdateType } from '../constants.js';
 import Observable from '../framework/observable.js';
-import { UpdateTypes } from '../constants.js';
 
 export default class TripModel extends Observable {
   #events = [];
@@ -23,10 +23,10 @@ export default class TripModel extends Observable {
       await Promise.all([this.#offersModel.init(), this.#destinationsModel.init()]);
       const events = await this.#tripApiService.events;
       this.#events = events.map(this.#adaptEventToClient);
-      this._notify(UpdateTypes.INIT);
+      this._notify(UpdateType.INIT);
     } catch (err) {
       this.#events = [];
-      this._notify(UpdateTypes.ERROR);
+      this._notify(UpdateType.ERROR);
     }
   }
 

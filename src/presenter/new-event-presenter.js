@@ -1,6 +1,6 @@
 import { RenderPosition, render, remove } from '../framework/render.js';
 import { isEscKey } from '../utilities/util.js';
-import { ActionTypes, UpdateTypes } from '../constants.js';
+import { ActionType, UpdateType } from '../constants.js';
 import FormNewEventView from '../view/form-new-event-view.js';
 
 export default class NewEventPresenter {
@@ -12,12 +12,12 @@ export default class NewEventPresenter {
   #dataChangeHandler = null;
   #newEventCloseHandler = null;
 
-  constructor(eventContainer, onDataChange, offers, destinations, onNewEventClose) {
+  constructor(eventContainer, offers, destinations, onNewEventClose, onDataChange) {
     this.#eventContainer = eventContainer;
-    this.#dataChangeHandler = onDataChange;
     this.#offers = offers;
     this.#destinations = destinations;
     this.#newEventCloseHandler = onNewEventClose;
+    this.#dataChangeHandler = onDataChange;
   }
 
   init () {
@@ -27,17 +27,17 @@ export default class NewEventPresenter {
       this.#newEventComponent = new FormNewEventView(this.#onFormSubmit, this.#onCancelButtonClick, this.#offers, this.#destinations, this);
       render(this.#newEventComponent, this.#eventContainer, RenderPosition.AFTERBEGIN);
 
-      document.addEventListener('keydown', this.#escKeyDownHandler);
+      document.addEventListener('keydown', this.#onEscKeyDown);
       return;
     }
 
-    document.removeEventListener('keydown', this.#escKeyDownHandler);
+    document.removeEventListener('keydown', this.#onEscKeyDown);
     this.destroy();
 
   }
 
   destroy () {
-    document.removeEventListener('keydown', this.#escKeyDownHandler);
+    document.removeEventListener('keydown', this.#onEscKeyDown);
     remove(this.#newEventComponent);
     this.#newEventComponent = null;
   }
@@ -54,21 +54,21 @@ export default class NewEventPresenter {
     this.#newEventComponent.shake(resetStateMode);
   }
 
-  #escKeyDownHandler = (evt) => {
+  #onEscKeyDown = (evt) => {
     if (isEscKey(evt)) {
       evt.preventDefault();
-      document.removeEventListener('keydown', this.#escKeyDownHandler);
+      document.removeEventListener('keydown', this.#onEscKeyDown);
       this.#newEventCloseHandler();
       this.destroy();
     }
   };
 
   #onFormSubmit = (updatedEvent) => {
-    this.#dataChangeHandler(ActionTypes.ADD_TRIP, UpdateTypes.MINOR, updatedEvent);
+    this.#dataChangeHandler(ActionType.ADD_TRIP, UpdateType.MINOR, updatedEvent);
   };
 
   #onCancelButtonClick = () => {
-    document.removeEventListener('keydown', this.#escKeyDownHandler);
+    document.removeEventListener('keydown', this.#onEscKeyDown);
     this.#newEventCloseHandler();
     this.destroy();
   };

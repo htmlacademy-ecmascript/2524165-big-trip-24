@@ -21,11 +21,11 @@ function getTimeFromTo(dateFrom, dateTo) {
   const days = Math.trunc(time / MINUTES_IN_AN_HOUR / HOURS_IN_A_DAY);
   const minutes = time % MINUTES_IN_AN_HOUR;
 
-  const hoursString = timeToString(hours, 'H').padStart(MIN_LETTERS_AMOUNT, '0');
-  const daysString = days ? timeToString(days, 'D').padStart(MIN_LETTERS_AMOUNT, '0') : '';
-  const minutesString = timeToString(minutes, 'M').padStart(MIN_LETTERS_AMOUNT, '0');
+  const hoursFormatted = timeToString(hours, 'H').padStart(MIN_LETTERS_AMOUNT, '0');
+  const daysFormatted = days ? timeToString(days, 'D').padStart(MIN_LETTERS_AMOUNT, '0') : '';
+  const minutesFormatted = timeToString(minutes, 'M').padStart(MIN_LETTERS_AMOUNT, '0');
 
-  return `${daysString} ${hoursString} ${minutesString}`;
+  return `${daysFormatted} ${hoursFormatted} ${minutesFormatted}`;
 }
 
 function checkEventIsFuture (event) {

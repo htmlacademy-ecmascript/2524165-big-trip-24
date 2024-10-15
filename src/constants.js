@@ -18,33 +18,33 @@ const DESTINATION_NAMES = [
   'London',
 ];
 
-const DateFormats = {
+const DateFormat = {
   FULLDATE: 'DD/MM/YYYY HH:mm',
   HOURS: 'HH:mm',
   MONTHDAY: 'MMM D',
   MONTHDAY_NOSLASH: 'D MMM'
 };
 
-const FilterTypes = {
+const FilterType = {
   EVERYTHING: 'everything',
   FUTURE: 'future',
   PRESENT: 'present',
   PAST: 'past'
 };
 
-const SortTypes = {
+const SortType = {
   DAY: 'day',
   PRICE: 'price',
   TIME: 'time',
 };
 
-const ActionTypes = {
+const ActionType = {
   ADD_TRIP: 'ADD_TRIP',
   UPDATE_TRIP: 'UPDATE_TRIP',
   DELETE_TRIP: 'DELETE_TRIP',
 };
 
-const UpdateTypes = {
+const UpdateType = {
   PATCH: 'Patch',
   MINOR: 'Minor',
   MAJOR: 'Major',
@@ -54,4 +54,4 @@ const UpdateTypes = {
 
 const SAME_DATE_OFFSET_IN_MINUTES = 5;
 
-export { TYPES, DESTINATION_NAMES, DateFormats, FilterTypes, SortTypes, ActionTypes, UpdateTypes, SAME_DATE_OFFSET_IN_MINUTES };
+export { TYPES, DESTINATION_NAMES, DateFormat, FilterType, SortType, ActionType, UpdateType, SAME_DATE_OFFSET_IN_MINUTES };
