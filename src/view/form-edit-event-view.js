@@ -274,36 +274,40 @@ export default class FormEditEventView extends AbstractStatefulView {
 
   #onFormChange = (evt) => {
     evt.preventDefault();
-    if (evt.target.matches('.event__type-input')) {
+    const inputType = evt.target;
+
+    if (inputType === evt.target.closest('.event__type-input')) {
       const type = evt.target.value;
       this.#getOffers(type);
       this.updateElement({...this._state, type: type, offers: new Set()});
     }
-    if (evt.target.matches('.event__input--destination')) {
+    if (inputType === evt.target.closest('.event__input--destination')) {
       const newDestinationName = evt.target.value;
       const newDestinationId = this.#destinations.find((destination) => destination.name === newDestinationName).id;
       this.#getDestination(newDestinationId);
       this.updateElement({...this._state, destination: this.#eventDestination.id});
     }
-    if (evt.target.matches('.event__input--price')) {
+    if (inputType === evt.target.closest('.event__input--price')) {
       const newPrice = parseInt(evt.target.value, 10);
       this.updateElement({...this._state, basePrice: newPrice});
     }
   };
 
   #onOfferClick = (evt) => {
-    const inputElement = evt.target.previousElementSibling ? evt.target.previousElementSibling : evt.target.parentElement.previousElementSibling;
+    const offerCheckbox = evt.target.closest('.event__offer-checkbox');
 
-    const offers = this._state.offers;
-    const targetID = inputElement.dataset.id;
+    if (offerCheckbox) {
+      const offers = this._state.offers;
+      const targetID = offerCheckbox.dataset.id;
 
-    if (offers.has(targetID)) {
-      offers.delete(targetID);
-    } else {
-      offers.add(targetID);
+      if (offers.has(targetID)) {
+        offers.delete(targetID);
+      } else {
+        offers.add(targetID);
+      }
+
+      this.updateElement({...this._state});
     }
-
-    this.updateElement({...this._state});
   };
 
   #onDateFromChange = ([dateFrom]) => {
