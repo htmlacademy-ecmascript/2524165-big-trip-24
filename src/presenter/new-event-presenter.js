@@ -40,6 +40,7 @@ export default class NewEventPresenter {
     document.removeEventListener('keydown', this.#onEscKeyDown);
     remove(this.#newEventComponent);
     this.#newEventComponent = null;
+    //this.#newEventCloseHandler();
   }
 
   setSaving () {
