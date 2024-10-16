@@ -207,6 +207,7 @@ export default class BoardPresenter {
         }
         break;
     }
+    this.#handleToggleNewEventButton(true);
     this.#uiBlocker.unblock();
   };
 
