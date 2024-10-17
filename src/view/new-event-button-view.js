@@ -1,10 +1,10 @@
 import AbstractView from '../framework/view/abstract-view';
 
-function createAddEventButtonTemplate(isEnabled) {
+function createNewEventButtonTemplate(isEnabled) {
   return `<button class="trip-main__event-add-btn  btn  btn--big  btn--yellow" type="button" ${isEnabled ? '' : 'disabled'}>New event</button>`;
 }
 
-export default class AddEventButtonView extends AbstractView {
+export default class NewEventButtonView extends AbstractView {
   #handleClick = null;
   #isEnabled = false;
 
@@ -14,7 +14,7 @@ export default class AddEventButtonView extends AbstractView {
   }
 
   get template () {
-    return createAddEventButtonTemplate(this.#isEnabled);
+    return createNewEventButtonTemplate(this.#isEnabled);
   }
 
   init () {
