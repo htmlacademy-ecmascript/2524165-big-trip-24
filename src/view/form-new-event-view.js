@@ -302,7 +302,8 @@ export default class FormNewEventView extends AbstractStatefulView {
   };
 
   #onOfferClick = (evt) => {
-    const offerCheckbox = evt.target.closest('.event__offer-checkbox');
+    evt.preventDefault();
+    const offerCheckbox = evt.target.nodeName === 'SPAN' ? evt.target.parentElement.previousElementSibling : evt.target.previousElementSibling;
 
     if (offerCheckbox) {
       const offers = this._state.offers;
