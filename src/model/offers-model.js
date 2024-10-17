@@ -6,6 +6,10 @@ export default class OffersModel {
     this.#tripApiService = tripApiService;
   }
 
+  get offers () {
+    return this.#offers;
+  }
+
   async init () {
     try {
       const offers = await this.#tripApiService.offers;
@@ -13,10 +17,6 @@ export default class OffersModel {
     } catch (err) {
       this.#offers = [];
     }
-  }
-
-  get offers () {
-    return this.#offers;
   }
 
 }

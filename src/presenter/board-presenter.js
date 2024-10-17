@@ -84,19 +84,16 @@ export default class BoardPresenter {
   }
 
   createEvent () {
-    if (!this.#isNewEventFormVisible) {
-      this.#currentSortType = SortType.DAY;
-      this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+    this.#currentSortType = SortType.DAY;
+    this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
 
-      this.#newEventPresenter = new NewEventPresenter(this.#eventListComponent.element, this.#onNewEventClose, this.#onViewAction, this.offers, this.destinations);
-      this.#handleToggleNewEventButton(false);
+    this.#handleToggleNewEventButton(false);
 
-      remove(this.#emptyListComponent);
-    } else {
-      this.#renderEmptyEventsList();
-    }
+    this.#newEventPresenter = new NewEventPresenter(this.#eventListComponent.element, this.#onNewEventClose, this.#onViewAction, this.offers, this.destinations);
 
-    this.#isNewEventFormVisible = !this.#isNewEventFormVisible;
+    remove(this.#emptyListComponent);
+
+    this.#isNewEventFormVisible = true;
     this.#newEventPresenter.init();
   }
 
@@ -164,6 +161,7 @@ export default class BoardPresenter {
   #onViewModeChange = () => {
     if (this.#isNewEventFormVisible) {
       this.#newEventPresenter.destroy();
+      this.#handleToggleNewEventButton(true);
       this.#isNewEventFormVisible = !this.#isNewEventFormVisible;
     }
     this.#eventPresenters.forEach((presenter) => presenter.resetView());
@@ -209,7 +207,7 @@ export default class BoardPresenter {
         }
         break;
     }
-
+    this.#handleToggleNewEventButton(true);
     this.#uiBlocker.unblock();
   };
 
@@ -240,6 +238,7 @@ export default class BoardPresenter {
   };
 
   #onNewEventClose = () => {
+    this.#isNewEventFormVisible = false;
     this.#handleToggleNewEventButton(true);
     this.#renderEmptyEventsList();
   };
