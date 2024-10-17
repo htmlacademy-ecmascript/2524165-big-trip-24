@@ -117,7 +117,7 @@ function createPriceFieldGroup(basePrice, isDisabled) {
 }
 
 function createOffersSection(eventTypeOffers, eventOffers, isDisabled) {
-  if (eventTypeOffers.length < 1) {
+  if (eventTypeOffers === null || eventTypeOffers.length < 1) {
     return '';
   }
   const offerSelectors = [];
@@ -230,6 +230,9 @@ export default class FormNewEventView extends AbstractStatefulView {
   }
 
   #getOffers (type) {
+    if (this.#offers.length < 1) {
+      return;
+    }
     const offersByType = this.#offers.find((offer) => offer.type === type);
     this.#eventTypeOffers = offersByType.offers;
   }

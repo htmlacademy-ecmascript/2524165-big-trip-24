@@ -116,6 +116,7 @@ export default class BoardPresenter {
 
   #renderError () {
     render(this.#errorComponent, this.#eventsContainer);
+    this.#handleToggleNewEventButton(false);
   }
 
   #renderBoard () {
@@ -150,6 +151,9 @@ export default class BoardPresenter {
       this.#newEventPresenter.destroy();
     }
 
+    this.#handleToggleNewEventButton(true);
+    this.#isNewEventFormVisible = false;
+
     remove(this.#sortListComponent);
     remove(this.#emptyListComponent);
 
@@ -162,7 +166,7 @@ export default class BoardPresenter {
     if (this.#isNewEventFormVisible) {
       this.#newEventPresenter.destroy();
       this.#handleToggleNewEventButton(true);
-      this.#isNewEventFormVisible = !this.#isNewEventFormVisible;
+      this.#isNewEventFormVisible = false;
     }
     this.#eventPresenters.forEach((presenter) => presenter.resetView());
   };
@@ -207,7 +211,7 @@ export default class BoardPresenter {
         }
         break;
     }
-    this.#handleToggleNewEventButton(true);
+
     this.#uiBlocker.unblock();
   };
 

@@ -12,7 +12,7 @@ function createSortItemTemplate (sortType, currentSortType, isSortItemDisabled =
           </div>`;
 }
 
-function createListSortTemplate (currentSortType) {
+function createSortTemplate (currentSortType) {
   return `<form class="trip-events__trip-sort  trip-sort" action="#" method="get">
             ${createSortItemTemplate(SortType.DAY, currentSortType)}
             ${createSortItemTemplate('event', currentSortType, true)}
@@ -22,7 +22,7 @@ function createListSortTemplate (currentSortType) {
           </form>`;
 }
 
-export default class SortListView extends AbstractView {
+export default class SortView extends AbstractView {
   #handleSortButtonClick = null;
   #currentSortType = SortType.DAY;
 
@@ -34,7 +34,7 @@ export default class SortListView extends AbstractView {
   }
 
   get template() {
-    return createListSortTemplate(this.#currentSortType);
+    return createSortTemplate(this.#currentSortType);
   }
 
   #onSortButtonClick = (evt) => {
